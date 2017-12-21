@@ -581,11 +581,11 @@ class SMFile(MSDFile):
             self.steps[game] = {}
           if parts[2] == "": parts[2] = parts[3]
           if parts[1] == "ez2-single-hard": parts[2] = "HARD: " + parts[2]
-          if parts[2][-2] == "_": # This is a KSF-style difficulty
-            parts[2] = parts[2][:-2]
-          self.difficulty[game][parts[2].upper()] = int(parts[4])
+          # Remove garbage characters from difficulty (e.g. "Easy-1" => "Easy")
+          parts[3] = ''.join(c for c in parts[3] if c in string.ascii_letters)
+          self.difficulty[game][parts[3].upper()] = int(parts[4])
           if need_steps:
-            self.steps[game][parts[2].upper()] = self.parse_steps(parts[6], game)
+            self.steps[game][parts[3].upper()] = self.parse_steps(parts[6], game)
 
     self.find_mixname()
     self.resolve_files_sanely()
