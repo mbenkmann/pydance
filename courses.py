@@ -144,7 +144,7 @@ class AbstractCourse(object):
         fn = os.path.expanduser(fn)
         if os.path.isfile(fn): fullname = fn
         elif os.path.isdir(fn):
-          file_list = util.find(fn, ["*.sm", "*.dwi"])
+          file_list = util.find(fn, ["*.sm", "*.dwi"], 1)
           if len(file_list) != 0: fullname = file_list[0]
         if fullname: break
 

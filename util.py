@@ -55,17 +55,45 @@ def toRealTime(bpm, steps):
 # Search the directory specified by path recursively for files that match
 # the shell wildcard pattern. A list of all matching file names is returned,
 # with absolute paths.
-def find(path, patterns):
+# dedup_level: 0 => do not eliminate duplicates
+#              1 => if multiple files with the same basename but different
+#                   extensions are found within the same directory, only
+#                   one file will be kept. Files matching patterns earlier
+#                   in the patterns list will be preferred over files matching
+#                   later patterns.
+def find(path, patterns, dedup_level):
   root = os.path.abspath(os.path.expanduser(path))
   matches = []
 
   for path,dirs,files in os.walk(root):
+    local_matches = []
     for fn in files:
       filepath = os.path.join(path, fn)
       for pattern in patterns:
         if fnmatch.fnmatch(filepath.lower(), pattern):
-          matches.append(filepath)
+          local_matches.append(filepath)
           break
+
+    for m in local_matches:
+      skip = False
+      if dedup_level > 0:
+        base,ext = os.path.splitext(m)
+        for m2 in local_matches:
+          if m2 == m:
+            continue
+          base2,ext2 = os.path.splitext(m2)
+          if ext != "" and base == base2:
+            for pattern in patterns:
+              # if m matches "better" pattern, don't skip m
+              if fnmatch.fnmatch(m.lower(), pattern):
+                break
+              # if m2 matches "better" pattern, skip m
+              if fnmatch.fnmatch(m2.lower(), pattern):
+                skip = True
+                break
+
+      if not skip:
+        matches.append(m)
 
   return matches
 

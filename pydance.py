@@ -140,10 +140,16 @@ def main():
   course_list = []
   for dir in mainconfig["songdir"].split(os.pathsep):
     print _("Searching for songs in"), dir
-    song_list.extend(util.find(dir, ['*.dance', '*.dwi', '*.sm', '*/song.*']))
+
+    # The order of patterns is significant. Deduplication will remove songs that
+    # match a later pattern if they are in the same directory as a song with the
+    # same basename but a different extension that matches an earlier pattern.
+    # E.g. many ZIP files contain both .sm and .dwi. The .dwi will be ignored in
+    # this case.
+    song_list.extend(util.find(dir, ['*.dance', '*.sm', '*.dwi', '*/song.*'], 1))
   for dir in mainconfig["coursedir"].split(os.pathsep):
     print _("Searching for courses in"), dir
-    course_list.extend(util.find(dir, ['*.crs']))
+    course_list.extend(util.find(dir, ['*.crs'], 0))
 
   screen = set_display_mode()
   
