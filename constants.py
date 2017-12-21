@@ -10,6 +10,10 @@ from string import maketrans
 from i18n import *
 
 VERSION = "1.1.0"
+STDOUT_ENCODING = "UTF-8"
+
+if sys.stdout.encoding not in (None, ""):
+  STDOUT_ENCODING = sys.stdout.encoding
 
 try: locale.setlocale(locale.LC_ALL, '')
 except locale.Error: pass
