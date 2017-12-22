@@ -206,6 +206,8 @@ def main():
   # Clean up shit.
   music.stop()
   pygame.quit()
+  mainconfig.update(game_config)
+  mainconfig.update(player_config)
   mainconfig.write(os.path.join(rc_path, "pydance.cfg"))
   # FIXME -- is this option a good idea?
   if mainconfig["saveinput"]: pad.write(os.path.join(rc_path, "input.cfg"))

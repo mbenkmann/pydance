@@ -227,3 +227,4 @@ class Endless(InterfaceWindow):
 
     mainconfig["autofail"] = oldaf
     player_config.update(self.player_configs[0])
+    game_config.update(self.game_config)

@@ -250,6 +250,7 @@ class SongSelect(InterfaceWindow):
     music.set_volume(1.0)
     music.play(4, 0.0)
     player_config.update(self._configs[0]) # Save p1's settings
+    game_config.update(self._config) # save game settings
 
   def loop(self):
     pid, ev = ui.ui.poll()
