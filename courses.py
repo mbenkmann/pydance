@@ -204,7 +204,7 @@ class CRSFile(AbstractCourse):
     # courses match it.
     self.banner = filename[:-3] + "png"
     lines = []
-    f = file(filename)
+    f = file(filename,"rU")
     for line in f:
       if line.find("//") != -1: line = line[:line.find("//")]
       line = line.strip()

@@ -46,7 +46,7 @@ class Config(object):
 
     if not os.path.isfile(filename) and not should_exist: return
 
-    fi = file(filename, "r")
+    fi = file(filename, "rU")
     for line in fi:
       line = line.strip()
       if not line or line[0] == '#': pass # comment

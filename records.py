@@ -7,7 +7,7 @@ import games
 
 record_fn = os.path.join(rc_path, "records")
 
-try: records = pickle.load(file(record_fn, "r"))
+try: records = pickle.load(file(record_fn, "rb"))
 except: records = {}
 bad_records = {}
 
@@ -56,7 +56,7 @@ def write():
   r = {}
   r.update(bad_records)
   r.update(records)
-  pickle.dump(r, file(record_fn, "w"), 2)
+  pickle.dump(r, file(record_fn, "wb"), 2)
 
 # Highest scores
 def best(index, diffs, game):

@@ -106,7 +106,7 @@ class DanceFile(GenericFile):
     state = DanceFile.METADATA
     state_data = [None, None]
 
-    f = file(filename)
+    f = file(filename, "rU")
 
     for line in f:
       line = line.strip()
@@ -209,7 +209,7 @@ class MSDFile(GenericFile):
   def __init__(self, filename, need_steps):
     GenericFile.__init__(self, filename, need_steps)
     lines = []
-    f = file(filename)
+    f = file(filename, "rU")
 
     # If there is a BOM, skip it. Otherwise, don't.
     if f.read(3) != codecs.BOM_UTF8: f.seek(0)
@@ -236,7 +236,7 @@ class MSDFile(GenericFile):
 
   # MSD-style files use DWI's .lrc lyric format
   def parse_lyrics(self, filename):
-    f = file(filename)
+    f = file(filename, "rU")
     offset = 0
     for line in f:
       line = line.strip()
@@ -695,7 +695,7 @@ class KSFFile(MSDFile):
         steps = [[], []]
         mode = "5COUPLE"
 
-    for line in file(filename):
+    for line in file(filename, "rU"):
       line = line.strip()
       if line[0] == "#":
         line = line[1:]

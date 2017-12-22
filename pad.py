@@ -150,7 +150,7 @@ class Pad(object):
     if os.path.exists(os.path.join(rc_path, "input.cfg")):
       try:
         fn = os.path.join(rc_path, "input.cfg")
-        self.events = pickle.load(file(fn, "r"))
+        self.events = pickle.load(file(fn, "rb"))
         for ev in self.events.values(): self.states[ev] = False
         loaded_input = True
       except:
@@ -262,7 +262,7 @@ class Pad(object):
     while ev[1] != PASS: ev = self.poll()
 
   def write(self, fn):
-    pickle.dump(self.events, file(fn, "w"), 2)
+    pickle.dump(self.events, file(fn, "wb"), 2)
 
   def set_repeat(*args): pass
 

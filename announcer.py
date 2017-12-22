@@ -32,7 +32,7 @@ class Announcer(Listener):
     if filename == None:
       raise SystemExit(_("E: Cannot load announcer theme '%s'.") % name)
 
-    fi = file(os.path.join(filename, "djtheme.cfg"), "r")
+    fi = file(os.path.join(filename, "djtheme.cfg"), "rU")
     sec = ""
     self.lasttime = -1000000
     for line in fi:
