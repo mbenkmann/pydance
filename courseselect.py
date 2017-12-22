@@ -207,7 +207,7 @@ class CourseSelector(InterfaceWindow):
 
     self._list = ListBox(FontTheme.Crs_list,
                          [255, 255, 255], 32, 10, 256, [373, 150])
-    if len(self._courses) > 60 and mainconfig["folders"]:
+    if mainconfig["folders"]:
       self._create_folders()
       self._create_folder_list()
     else:

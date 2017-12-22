@@ -189,7 +189,7 @@ class SongSelect(InterfaceWindow):
     # please use set constructions after python 2.4 is adopted
     sort_name = self._update_songitems()
 
-    if len(self._songs) > 60 and mainconfig["folders"]:
+    if mainconfig["folders"]:
       self._create_folders()
       self._create_folder_list()
     else:
