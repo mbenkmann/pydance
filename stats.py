@@ -34,6 +34,11 @@ class Stats(Listener):
     stddev = sqrt(s2 / (len(self._times) - 1))
     return avg, stddev
 
+  def offset(self):
+    s = sum(self._times)
+    avg = s / len(self._times)
+    return int(avg*1000)
+
   def ok_hold(self, pid, time, dir, whichone):
     self.hold_count += 1
     self.good_holds += 1

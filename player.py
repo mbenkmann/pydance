@@ -224,6 +224,7 @@ class Player(object):
     else: self.top = 64
 
     self.secret_kind = songconf["secret"]
+    self.audiosync = songconf["audiosync"]
 
     self.score = scores.scores[songconf["scoring"]](pid, "NONE", game)
     self.combos = combos.combos[songconf["combo"]](pid, game)
@@ -266,20 +267,24 @@ class Player(object):
   def set_song(self, song, diff, lyrics):
     self.difficulty = diff
 
+    offset = 0
+    if self.audiosync > 0:
+      offset = mainconfig['masteroffset']
+
     if self.game.double:
       self.holding = [[-1] * len(self.game.dirs), [-1] * len(self.game.dirs)]
       if self.transform == 1:
         # In double mirror mode, we have to swap the step sets for this
         # player's pids. This ensures, e.g., 1R becomes 2L, rather than 1L.
         self.steps = [steps.Steps(song, diff, self, self.pid * 2 + 1,
-                                  lyrics, self.game.name),
+                                  lyrics, self.game.name, offset),
                       steps.Steps(song, diff, self, self.pid * 2,
-                                  lyrics, self.game.name)]
+                                  lyrics, self.game.name, offset)]
       else:
         self.steps = [steps.Steps(song, diff, self, self.pid * 2,
-                                  lyrics, self.game.name),
+                                  lyrics, self.game.name, offset),
                       steps.Steps(song, diff, self, self.pid * 2 + 1,
-                                  lyrics, self.game.name)]
+                                  lyrics, self.game.name, offset)]
       self.length = max(self.steps[0].length, self.steps[1].length)
       self.ready = min(self.steps[0].ready, self.steps[1].ready)
       self.bpm = self.steps[0].bpm
@@ -296,7 +301,7 @@ class Player(object):
     else:
       self.holding = [-1] * len(self.game.dirs)
       self.steps = steps.Steps(song, diff, self, self.pid, lyrics,
-                               self.game.name)
+                               self.game.name, offset)
       self.length = self.steps.length
       self.ready = self.steps.ready
       self.bpm = self.steps.bpm

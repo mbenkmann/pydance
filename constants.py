@@ -129,6 +129,7 @@ default_conf = {
   "secret": 1,
   "lifebar": 0,
   "onilives": 3,
+  "audiosync": 1,
   }
 
 for game in games.GAMES.values():
@@ -152,7 +153,7 @@ player_config = dict([(k, mainconfig[k]) for k in
 
 game_config = dict([(k, mainconfig[k]) for k in
                     ["battle", "scoring", "combo", "grade", "judge",
-                     "judgescale", "life", "secret", "lifebar", "onilives"]])
+                     "judgescale", "life", "secret", "lifebar", "onilives", "audiosync"]])
 
 
 # The list of options that are safe to change between songs on a

@@ -680,8 +680,7 @@ type of lifebar used.</p>
     <p>When you exit the options screen, both players' options are
 saved between songs. If you exit from the song selector (and go back
 to the main menu or game selection screen) only the first player's are
-remembered, and set as the default for both players. If you exit
-<tt>pydance</tt>, these options are all reset.</p>
+remembered, and set as the default for both players.
     <p>There are too many different options and settings to explain
 here, but each option has a description that is displayed with it when
 you select it. If you're not sure what something does, just try it
@@ -820,13 +819,20 @@ after a song.</dd>
       <dd>If these are off, <tt>pydance</tt> will remove the combo count or
 step judging text from the screen after a few seconds.</dd>
       <dt>masteroffset [number] (default 0)</dt>
-      <dd>Some systems have speakers or displays that take measurable
-time (in terms of affecting gameplay) to output a signal. If you have
-one of these, you can add an offset in milliseconds to every song you
-have. This should not be used if you have a lot of step files that are
-a specific number of milliseconds off. If you use it for this, all new
-files you get will be wrong, and no one else will be able to use your
-original files.</dd>
+      <dd>Some systems have an audio pipeline that lags behind the video
+      pipeline, or (in rarer cases) the other way around. This will cause
+      the arrows to be slightly ahead or behind the audible beat of the song.
+      This option adds an offset in milliseconds to every song.
+      The use of this offset can be enabled or disabled with the
+      <tt>Audio Sync</tt> option in the song options menu. There is also a
+      <tt>Learn</tt> setting that will adapt the offset after each
+      completed song based on how much your steps were off. You should
+      activate the <tt>Learn</tt> setting, dance a few songs, then switch
+      to <tt>On</tt> to keep the offset constant.
+      Be careful with this option when testing simfiles you have created
+      yourself or you
+      will end up creating files that are wrong for everyone else.
+      </dd>
       <dt>onboardaudio 0|1</dt>
       <dd>Some systems (especially laptops) use sound cards or drivers
 that resample sound in strange ways, which may make <tt>pydance</tt> play songs

@@ -35,12 +35,12 @@ class SongEvent(object):
 # Step objects, made from SongItem objects
 
 class Steps(object):
-  def __init__(self, song, difficulty, player, pid, lyrics, playmode):
+  def __init__(self, song, difficulty, player, pid, lyrics, playmode, offset):
     self.playmode = playmode
     self.difficulty = difficulty
     self.feet = song.difficulty[playmode][difficulty]
     self.length = 0.0
-    self.offset = -(song.info["gap"] + mainconfig['masteroffset']) / 1000.0
+    self.offset = -(song.info["gap"] + offset) / 1000.0
     self.soffset = self.offset * 1000
     self.bpm = song.info["bpm"]
 

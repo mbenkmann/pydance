@@ -164,12 +164,18 @@ OPTIONS = {
   "battle": (False, _("Battle Mode"),
              _("Arrows start in the center and float outwards."),
              ON_OFF),
+  "audiosync": (False, _("Audio Sync"),
+             _("Shift arrow timing to better match the beat of the song."),
+             [(0, _("Off"),   _("Do not shift arrow timing.")),
+              (1, _("On"),    _("Apply current shift value.")),
+              (2, _("Learn"), _("Learn shift value from your dancing."))]
+             ),
   }
             
 OPTS = [ "speed", "transform", "size", "fade", "accel", "scale",
          "scrollstyle", "jumps", "spin", "colortype", "dark", "holds",
          "scoring", "combo", "grade", "judge", "lifebar", "judgescale",
-         "life", "onilives", "secret", "battle"
+         "life", "onilives", "secret", "battle", "audiosync",
          ]
 
 O_HELP = [

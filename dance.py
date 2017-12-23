@@ -349,6 +349,14 @@ def play(screen, playlist, configs, songconf, playmode):
   if mainconfig['grading'] and not first and songdata:
     grade = gradescreen.GradingScreen(screen, players, songdata.banner)
 
+  if songconf["audiosync"] == 2:
+    old_offset = mainconfig["masteroffset"]
+    new_offset = old_offset + players[0].stats.offset()
+    # Do not just replace masteroffset with new offset. Feed it into masteroffset
+    # with 33% significance. That way we approach the correct value across multiple
+    # plays and avoid messing up the value based on a single "bad" play.
+    mainconfig["masteroffset"] = (old_offset*2 + new_offset) // 3
+
   # If we only play one song (all the way through), then it's safe to enter
   # a grade. This means course grades are going to get kind of messy,
   # and have to be handled by the course stuff rather than here.
