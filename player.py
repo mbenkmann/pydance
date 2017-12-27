@@ -11,7 +11,6 @@ import judge
 import stats
 
 from constants import *
-from pad import pad
 
 from util import toRealTime
 from gfxtheme import GFXTheme
@@ -209,6 +208,7 @@ class Player(object):
     self.pid = pid
     self.failed = False
     self.escaped = False
+    self.states = {}
 
     self.__dict__.update(config)
 
@@ -412,17 +412,12 @@ class Player(object):
           return i
 
   def check_holds(self, pid, curtime, arrows, steps, judge, toparrfx, holding):
-    # FIXME THis needs to go away
-    keymap_kludge = { "u": pad.UP, "k": pad.UPLEFT, "z": pad.UPRIGHT,
-                      "d": pad.DOWN, "l": pad.LEFT, "r": pad.RIGHT,
-                      "g": pad.DOWNRIGHT, "w": pad.DOWNLEFT, "c": pad.CENTER }
-
     for dir in self.game.dirs:
       toparrfx[dir].holding(0)
       current_hold = self.should_hold(steps, dir, curtime)
       dir_idx = self.game.dirs.index(dir)
       if current_hold is not None:
-        if pad.states[(pid, keymap_kludge[dir])]:
+        if self.states[(pid, dir)]:
           if judge.holdsub.get(holding[dir_idx]) != -1:
             toparrfx[dir].holding(1)
           holding[dir_idx] = current_hold
@@ -447,9 +442,11 @@ class Player(object):
             for l in self.listeners: l.ok_hold(*args)
             holding[dir_idx] = -1
 
-  def handle_key(self, ev, time):
+  def handle_keydown(self, ev, time):
     ev = ev[0], self.game.dirmap.get(ev[1], ev[1])
     if ev[1] not in self.game.dirs: return
+
+    self.states[ev] = True
 
     if self.game.double:
       pid = ev[0] & 1
@@ -462,6 +459,11 @@ class Player(object):
       for l in self.listeners:
         l.stepped(ev[0], dir, time, etime, rating, self.combos.combo)
       self.fx_data.append((rating, dir, etime))
+
+  def handle_keyup(self, ev, time):
+    ev = ev[0], self.game.dirmap.get(ev[1], ev[1])
+    if ev[1] not in self.game.dirs: return
+    self.states[ev] = False
 
   def check_bpm_change(self, pid, time, steps, judge):
     newbpm = self.bpm

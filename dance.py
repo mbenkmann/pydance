@@ -497,6 +497,15 @@ def dance(screen, song, players, prevscr, ready_go, game):
       elif ev[1] == pad.UP: key.append((ev[0], 'u'))
       elif ev[1] == pad.DOWN: key.append((ev[0], 'd'))
       elif ev[1] == pad.CENTER: key.append((ev[0], 'c'))
+      elif ev[1] == -pad.LEFT: key.append((ev[0], '-l'))
+      elif ev[1] == -pad.DOWNLEFT: key.append((ev[0], '-w'))
+      elif ev[1] == -pad.UPLEFT: key.append((ev[0], '-k'))
+      elif ev[1] == -pad.RIGHT: key.append((ev[0], '-r'))
+      elif ev[1] == -pad.UPRIGHT: key.append((ev[0], '-z'))
+      elif ev[1] == -pad.DOWNRIGHT: key.append((ev[0], '-g'))
+      elif ev[1] == -pad.UP: key.append((ev[0], '-u'))
+      elif ev[1] == -pad.DOWN: key.append((ev[0], '-d'))
+      elif ev[1] == -pad.CENTER: key.append((ev[0], '-c'))
 
       ev = pad.poll()
 
@@ -506,7 +515,11 @@ def dance(screen, song, players, prevscr, ready_go, game):
       if game.double: pid = ev[0] / 2
       else: pid = ev[0]
       
-      if pid < len(players): players[pid].handle_key(ev, curtime)
+      if pid < len(players):
+        if ev[1][0] != '-':
+          players[pid].handle_keydown(ev, curtime)
+        else:
+          players[pid].handle_keyup((ev[0],ev[1][1:]), curtime)
 
     rectlist = []
 
