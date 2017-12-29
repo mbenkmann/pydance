@@ -2,11 +2,10 @@ from pygame.locals import *
 from constants import mainconfig
 import pad, pygame
 
-(PASS, CANCEL, UP, DOWN, LEFT, RIGHT, START, SELECT, CONFIRM,
- PGUP, PGDN, FULLSCREEN, SORT, CLEAR) = range(14)
-
-QUIT = CANCEL
-SCREENSHOT = SORT
+# The order has to match the one in pad.py!
+(PASS, CANCEL, UP, UPLEFT, LEFT, DOWNLEFT, DOWN, DOWNRIGHT,
+ RIGHT, UPRIGHT, CENTER, START, SELECT, SCREENSHOT,
+ CONFIRM, PGUP, PGDN, FULLSCREEN, SORT, CLEAR) = range(20)
 
 non_player = [CANCEL, PASS]
 
@@ -81,6 +80,9 @@ class UI(object):
       return self.last_press[0]
 
     return (pid, nev)
+
+  def poll_dance(self):
+    return self.handler.poll()
 
   def forget_repeat(self):
     self.last_press = ((None, None), None)

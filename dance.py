@@ -3,8 +3,6 @@
 import pygame
 from constants import *
 
-from pad import pad
-
 from util import toRealTime
 from player import Player
 from announcer import Announcer
@@ -454,7 +452,7 @@ def dance(screen, song, players, prevscr, ready_go, game):
   autofail = mainconfig['autofail']
 
   screenshot = False
-  pad.empty()
+  ui.ui.empty()
 
   while True:
     if autofail:
@@ -473,44 +471,35 @@ def dance(screen, song, players, prevscr, ready_go, game):
 
     key = []
 
-    ev = pad.poll()
+    ev = ui.ui.poll_dance()
 
-    for i in range(len(players)):
-      if (pad.states[(i, pad.START)] and pad.states[(i, pad.SELECT)]):
-        ev = (0, pad.QUIT)
-        break
-      else:
-        pass
-
-    while ev[1] != pad.PASS:
-      if ev[1] == pad.QUIT:
+    while ev[1] != ui.PASS:
+      if ev[1] == ui.CANCEL:
         for p in players: p.escaped = True
-        break
-      elif ev[1] == pad.SCREENSHOT:
+        return False
+      elif ev[1] == ui.SCREENSHOT:
         screenshot = True
-      elif ev[1] == pad.LEFT: key.append((ev[0], 'l'))
-      elif ev[1] == pad.DOWNLEFT: key.append((ev[0], 'w'))
-      elif ev[1] == pad.UPLEFT: key.append((ev[0], 'k'))
-      elif ev[1] == pad.RIGHT: key.append((ev[0], 'r'))
-      elif ev[1] == pad.UPRIGHT: key.append((ev[0], 'z'))
-      elif ev[1] == pad.DOWNRIGHT: key.append((ev[0], 'g'))
-      elif ev[1] == pad.UP: key.append((ev[0], 'u'))
-      elif ev[1] == pad.DOWN: key.append((ev[0], 'd'))
-      elif ev[1] == pad.CENTER: key.append((ev[0], 'c'))
-      elif ev[1] == -pad.LEFT: key.append((ev[0], '-l'))
-      elif ev[1] == -pad.DOWNLEFT: key.append((ev[0], '-w'))
-      elif ev[1] == -pad.UPLEFT: key.append((ev[0], '-k'))
-      elif ev[1] == -pad.RIGHT: key.append((ev[0], '-r'))
-      elif ev[1] == -pad.UPRIGHT: key.append((ev[0], '-z'))
-      elif ev[1] == -pad.DOWNRIGHT: key.append((ev[0], '-g'))
-      elif ev[1] == -pad.UP: key.append((ev[0], '-u'))
-      elif ev[1] == -pad.DOWN: key.append((ev[0], '-d'))
-      elif ev[1] == -pad.CENTER: key.append((ev[0], '-c'))
+      elif ev[1] == ui.LEFT: key.append((ev[0], 'l'))
+      elif ev[1] == ui.DOWNLEFT: key.append((ev[0], 'w'))
+      elif ev[1] == ui.UPLEFT: key.append((ev[0], 'k'))
+      elif ev[1] == ui.RIGHT: key.append((ev[0], 'r'))
+      elif ev[1] == ui.UPRIGHT: key.append((ev[0], 'z'))
+      elif ev[1] == ui.DOWNRIGHT: key.append((ev[0], 'g'))
+      elif ev[1] == ui.UP: key.append((ev[0], 'u'))
+      elif ev[1] == ui.DOWN: key.append((ev[0], 'd'))
+      elif ev[1] == ui.CENTER: key.append((ev[0], 'c'))
+      elif ev[1] == -ui.LEFT: key.append((ev[0], '-l'))
+      elif ev[1] == -ui.DOWNLEFT: key.append((ev[0], '-w'))
+      elif ev[1] == -ui.UPLEFT: key.append((ev[0], '-k'))
+      elif ev[1] == -ui.RIGHT: key.append((ev[0], '-r'))
+      elif ev[1] == -ui.UPRIGHT: key.append((ev[0], '-z'))
+      elif ev[1] == -ui.DOWNRIGHT: key.append((ev[0], '-g'))
+      elif ev[1] == -ui.UP: key.append((ev[0], '-u'))
+      elif ev[1] == -ui.DOWN: key.append((ev[0], '-d'))
+      elif ev[1] == -ui.CENTER: key.append((ev[0], '-c'))
 
-      ev = pad.poll()
+      ev = ui.ui.poll_dance()
 
-    if ev[1] == pad.QUIT: return False
-  
     for ev in key:
       if game.double: pid = ev[0] / 2
       else: pid = ev[0]

@@ -48,7 +48,7 @@ from fontfx import TextProgress
 from error import ErrorMessage
 from fonttheme import FontTheme
 
-from pad import pad
+import ui
 
 # Set our required display paramters. Currently, this is nothing
 # strange on any platforms, but in the past and likely in the future
@@ -190,7 +190,7 @@ def main():
   song_list = None
   course_list = None
   record_dict = None
-  pad.empty()
+  ui.ui.empty()
 
   if len(songs) < 1:
     ErrorMessage(screen,
