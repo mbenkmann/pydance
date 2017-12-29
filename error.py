@@ -33,7 +33,7 @@ class ErrorMessage(InterfaceWindow):
     ui.ui.clear()
 
     pid, ev = (0, ui.PASS)
-    while ev not in [ui.START, ui.CONFIRM, ui.QUIT]:
+    while ev not in [ui.START, ui.CONFIRM, ui.CANCEL]:
       if ev == ui.FULLSCREEN:
         pygame.display.toggle_fullscreen()
         mainconfig["fullscreen"] ^= 1

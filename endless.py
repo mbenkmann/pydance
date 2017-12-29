@@ -173,7 +173,7 @@ class Endless(InterfaceWindow):
 
     pid, ev = 0, ui.PASS
 
-    while ev != ui.QUIT:
+    while ev != ui.CANCEL:
       pid, ev = ui.ui.poll()
 
       if ev == ui.START:

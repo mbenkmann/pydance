@@ -52,7 +52,7 @@ class MenuItem(object):
       self.render()
     elif self.callbacks == None:
       if ev  in [ui.START, ui.RIGHT, ui.LEFT, ui.CONFIRM]:
-        return ui.QUIT # This is a back button
+        return ui.CANCEL # This is a back button
       else: return ev # Shouldn't happen
     elif callable(self.callbacks.get(ev)):
       text, subtext = self.callbacks[ev](*self.args)
@@ -147,7 +147,7 @@ class Menu(object):
     self.items[curitem].activate(SELECT)
 
     ev = ui.PASS
-    while ev != ui.QUIT:
+    while ev != ui.CANCEL:
       r = []
       ev = ui.ui.poll()[1]
 
@@ -180,7 +180,7 @@ class Menu(object):
         pygame.display.toggle_fullscreen()
 
       # Otherwise, if the event actually happened, pass it on to the button.
-      elif ev != ui.PASS and ev != ui.QUIT:
+      elif ev != ui.PASS and ev != ui.CANCEL:
         if ev in [ui.START, ui.CONFIRM]: Menu.click_sound.play()
         ev = self.items[curitem].activate(ev)
         ui.ui.clear()
@@ -203,6 +203,6 @@ class Menu(object):
       #self.sprites.clear(screen, Menu.bgimage)
       clock.tick(30)
 
-    if ev == ui.QUIT:
+    if ev == ui.CANCEL:
       Menu.back_sound.play()
       self.items[curitem].activate(UNSELECT)

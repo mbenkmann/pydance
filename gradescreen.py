@@ -274,7 +274,7 @@ class GradingScreen(InterfaceWindow):
     screenshot = False
     pid, ev = ui.ui.poll()
     clock = pygame.time.Clock()
-    exits = [ui.QUIT]
+    exits = [ui.CANCEL]
     start = pygame.time.get_ticks()
     
     while ev not in exits:
