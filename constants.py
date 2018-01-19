@@ -184,6 +184,8 @@ changeable_between = [('speed', {}),
 
 
 pygame.init()
+pygame.event.set_blocked(range(pygame.NUMEVENTS))
+pygame.event.set_allowed((pygame.KEYUP, pygame.KEYDOWN, pygame.JOYBUTTONUP, pygame.JOYBUTTONDOWN, pygame.QUIT, pygame.JOYAXISMOTION, pygame.JOYHATMOTION))
 
 # The different colors pydance uses for difficulties in the UI.
 DIFF_COLORS = { "BEGINNER": colors.color[_("white")],

@@ -223,7 +223,7 @@ class SongInfoScreen(InterfaceWindow):
 
     self._other_widgets=[TextDisplay('SongInfo_screen_title', [400, 50], [15, 35], _("Next Song")),
                          TextDisplay('SongInfo_controls', [259, 37], [15, 450], _("Confirm: Begin   Cancel: Stop")),
-                         TextDisplay('SongInfo_controls', [259, 37], [380, 450], _("Start: Change Options"))]
+                         TextDisplay('SongInfo_controls', [259, 37], [380, 450], _("F1 / Start: Change Options"))]
     
     self._sprites.add([self._banner, self._countdown] +
                       self._player_widgets + self._player_opts +
@@ -241,7 +241,7 @@ class SongInfoScreen(InterfaceWindow):
       pygame.time.wait(20)
 
       pid, ev = ui.ui.poll()
-      if ev == ui.START:
+      if ev == ui.OPTIONS:
         options.OptionScreen(self.configs, self.songconf, self._screen,
                              whitelist = [x[0] for x in changeable_between])
         
@@ -452,7 +452,7 @@ def dance(screen, song, players, prevscr, ready_go, game):
   autofail = mainconfig['autofail']
 
   screenshot = False
-  ui.ui.empty()
+  ui.ui.clear()
 
   while True:
     if autofail:
@@ -504,7 +504,7 @@ def dance(screen, song, players, prevscr, ready_go, game):
       if game.double: pid = ev[0] / 2
       else: pid = ev[0]
       
-      if pid < len(players):
+      if pid >= 0 and pid < len(players):
         if ev[1][0] != '-':
           players[pid].handle_keydown(ev, curtime)
         else:

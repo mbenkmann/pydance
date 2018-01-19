@@ -54,7 +54,7 @@ SS_HELP = [
   _("Enter / Up Right: Open a folder or start a song"),
   _("Escape / Up Left: Closes  folder or exit"),
   _("Tab / Select: Go to a random song"),
-  _("Start: Go to the options screen"),
+  _("F1 / Start: Go to the options screen"),
   _("F11: Toggle fullscreen - S: Change the sort mode"),
   ]
 
@@ -260,8 +260,12 @@ class SongSelect(InterfaceWindow):
     while not (ev == ui.CANCEL and (not self._folders or self._song.isfolder)):
       # Inactive player. If the event isn't set to ui.PASS, we try to use
       # the pid later, which will be bad.
-      if pid >= len(self._diff_names): ev = ui.PASS
-      
+      if pid >= len(self._diff_names):
+        ev = ui.PASS
+      elif pid >= 0 and ev in (ui.UP, ui.DOWN):  # Only use menuing UP/DOWN
+        ev = ui.PASS
+      elif pid < 0 and ev in (ui.LEFT, ui.RIGHT): # Need LEFT/RIGHT player-specific
+        ev = ui.PASS
       elif ev == ui.UP: self._index -= 1
       elif ev == ui.DOWN: self._index += 1
       elif ev == ui.PGUP:
@@ -289,7 +293,7 @@ class SongSelect(InterfaceWindow):
           self._pref_diff_names[pid] = name
           self._last_player = pid
 
-      elif ev == ui.SELECT:
+      elif ev == ui.RANDOM:
         if self._song.isfolder:
           if len(self._all_valid_songitems) > 0:
             self._song = random.choice(self._all_valid_songitems)
@@ -308,7 +312,7 @@ class SongSelect(InterfaceWindow):
           else:
             error.ErrorMessage(screen, _("You don't have any songs here that ") +
                                _("are marked \"valid\" for random selection."))
-      elif ev == ui.START:
+      elif ev == ui.OPTIONS:
         options.OptionScreen(self._configs, self._config, self._screen)
         self._screen.blit(self._bg, [0, 0])
         self.update()
@@ -369,18 +373,18 @@ class SongSelect(InterfaceWindow):
           self._diff_names[i] = self._diff_names[pid]
           self._pref_diff_names[i] = self._diff_names[pid]
 
-      if ev in [ui.CANCEL, ui.UP, ui.DOWN, ui.SELECT, ui.CONFIRM, ui.SORT]:
+      if ev in [ui.CANCEL, ui.UP, ui.DOWN, ui.RANDOM, ui.CONFIRM, ui.SORT]:
         self._preview.preview(self._song)
         self._banner.set_song(self._song)
 
-      if ev in [ui.CANCEL, ui.UP, ui.DOWN, ui.SELECT, ui.CONFIRM, ui.SORT]:
+      if ev in [ui.CANCEL, ui.UP, ui.DOWN, ui.RANDOM, ui.CONFIRM, ui.SORT]:
         if ev == ui.UP: self._list.set_index(self._index, -1)
         elif ev == ui.DOWN: self._list.set_index(self._index, 1)
         else: self._list.set_index(self._index, 0) # don't animate
         self._title.set_text(self._base_text + " - %d/%d" % (self._index + 1,
                                                              len(self._songitems)))
 
-      if ev in [ui.UP, ui.DOWN, ui.SELECT, ui.SORT, ui.CONFIRM]:
+      if ev in [ui.UP, ui.DOWN, ui.RANDOM, ui.SORT, ui.CONFIRM]:
         if not self._song.isfolder:
           for pl, dname in enumerate(self._diff_names):
             name = self._pref_diff_names[pl]
@@ -406,7 +410,7 @@ class SongSelect(InterfaceWindow):
                 difflen = len(self._song.diff_list)
                 self._diff_names[pl] = self._song.diff_list[difflen/2]
           
-      if ev in [ui.UP, ui.DOWN, ui.LEFT, ui.RIGHT, ui.SELECT, ui.CONFIRM]:
+      if ev in [ui.UP, ui.DOWN, ui.LEFT, ui.RIGHT, ui.RANDOM, ui.CONFIRM]:
         if not self._song.isfolder:
           for i, name in enumerate(self._diff_names):
             rank = records.get(self._song.info["recordkey"],

@@ -23,7 +23,7 @@ ENDLESS_HELP = [
   _("Down: Select difficulty by rating"),
   _("Enter / Up Right: Start playing songs until you fail"),
   _("Escape / Up Left: Go back to the game selection screen"),
-  _("Start: Go to the options screen / F11: Toggle fullscreen"),
+  _("F1 / Start: Go to the options screen / F11: Toggle fullscreen"),
   ]
 
 def check_constraints(constraints, diff):
@@ -176,7 +176,7 @@ class Endless(InterfaceWindow):
     while ev != ui.CANCEL:
       pid, ev = ui.ui.poll()
 
-      if ev == ui.START:
+      if ev == ui.OPTIONS:
         options.OptionScreen(self.player_configs, self.game_config, screen)
         self._screen.blit(self._bg, [0, 0])
         pygame.display.update()
@@ -196,13 +196,13 @@ class Endless(InterfaceWindow):
       # Ignore unknown events
       elif pid >= len(self.constraints): pass
 
-      elif ev == ui.DOWN and self.constraints[pid].kind != "name":
+      elif pid < 0 and ev == ui.DOWN and self.constraints[pid].kind != "name":
         self.constraints[pid].kind = "name"
         self.constraints[pid].value = diffs[0]
-      elif ev == ui.UP and self.constraints[pid].kind != "number":
+      elif pid < 0 and ev == ui.UP and self.constraints[pid].kind != "number":
         self.constraints[pid].kind = "number"
         self.constraints[pid].value = (1, 3)
-      elif ev == ui.LEFT: # easier
+      elif pid >= 0 and ev == ui.LEFT: # easier
         if self.constraints[pid].kind == "name":
           newi = max(0, diffs.index(self.constraints[pid].value) - 1)
           self.constraints[pid].value = diffs[newi]
@@ -210,7 +210,7 @@ class Endless(InterfaceWindow):
           newmin = max(self.constraints[pid].value[0] - 1, 1)
           self.constraints[pid].value = (newmin, newmin + 2)
 
-      elif ev == ui.RIGHT: # harder
+      elif pid >= 0 and ev == ui.RIGHT: # harder
         if self.constraints[pid].kind == "name":
           newi = min(len(diffs) - 1,
                      diffs.index(self.constraints[pid].value) + 1)

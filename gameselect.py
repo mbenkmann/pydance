@@ -213,8 +213,8 @@ class MainWindow(InterfaceWindow):
     
     while not (ev == ui.CANCEL and active == 0):
 
-      if ev == ui.UP: indices[active] -= 1
-      elif ev == ui.DOWN: indices[active] += 1
+      if pid < 0 and ev == ui.UP: indices[active] -= 1
+      elif pid < 0 and ev == ui.DOWN: indices[active] += 1
 
       elif ev == ui.FULLSCREEN:
         mainconfig["fullscreen"] ^= 1
@@ -222,7 +222,7 @@ class MainWindow(InterfaceWindow):
 
       elif ev == ui.CANCEL:
         active -= 1
-      elif ev in [ui.CONFIRM, ui.START]:
+      elif ev in [ui.CONFIRM, ui.OPTIONS]:
         if active == 2:
           # Start the selected UI, and clean up afterwards
           SELECTORS[SS[indices[2]]](self._songs, self._courses, self._screen,
@@ -237,7 +237,7 @@ class MainWindow(InterfaceWindow):
 
       indices[active] %= len(VALUES[active])
 
-      if ev in [ui.UP, ui.DOWN]:
+      if pid < 0 and ev in [ui.UP, ui.DOWN]:
         if ev == ui.UP: self._lists[active].set_index(indices[active], -1)
         else: self._lists[active].set_index(indices[active], 1)
         text = VALUES[active][indices[active]]
@@ -247,7 +247,7 @@ class MainWindow(InterfaceWindow):
         if callable(img): self._image.set_image(img(self._oldimage))
         else: self._image.set_image(IMAGES.get(text))
 
-      if ev in [ui.CONFIRM, ui.START, ui.CANCEL]:
+      if ev in [ui.CONFIRM, ui.OPTIONS, ui.CANCEL]:
         self._indicator.move([405, self._indicator_y[active]])
         self._title.set_text(self._message[active])
         text = VALUES[active][indices[active]]

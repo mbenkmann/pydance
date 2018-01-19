@@ -160,21 +160,21 @@ def wrap_ctr(Obj, args):
 
 def do(screen, songdata):
 
-  onoff_opt = { ui.START: switch_onoff, ui.CONFIRM: switch_onoff,
+  onoff_opt = { ui.OPTIONS: switch_onoff, ui.CONFIRM: switch_onoff,
                 menus.CREATE: get_onoff, ui.LEFT: off_onoff,
                 ui.RIGHT: on_onoff }
-  offon_opt = { ui.START: switch_offon, ui.START: switch_offon,
+  offon_opt = { ui.OPTIONS: switch_offon, ui.CONFIRM: switch_offon,
 	menus.CREATE: get_offon, ui.LEFT: off_offon, ui.RIGHT: on_offon }
-  rotate_opt = { ui.START: switch_rotate, ui.CONFIRM: switch_rotate,
+  rotate_opt = { ui.OPTIONS: switch_rotate, ui.CONFIRM: switch_rotate,
                  ui.LEFT: switch_rotate_back,
                  ui.RIGHT: switch_rotate,
                  menus.CREATE: get_rotate }
-  rotate_index_opt = { ui.START: switch_rotate_index,
+  rotate_index_opt = { ui.OPTIONS: switch_rotate_index,
                        ui.CONFIRM: switch_rotate_index,
                        ui.LEFT: switch_rotate_index_back,
                        ui.RIGHT: switch_rotate_index,
                        menus.CREATE: get_rotate_index }
-  tuple_opt = { ui.START: switch_tuple, ui.CONFIRM: switch_tuple,
+  tuple_opt = { ui.OPTIONS: switch_tuple, ui.CONFIRM: switch_tuple,
                 ui.LEFT: switch_tuple_back,
                 ui.RIGHT: switch_tuple,
                 menus.CREATE: get_tuple }
@@ -191,9 +191,9 @@ def do(screen, songdata):
              _("(Your CREDITS file is missing.)"),
              ]).add(sprites)
 
-  m = ([_("Play Game"), {ui.START: wrap_ctr, ui.CONFIRM: wrap_ctr},
+  m = ([_("Play Game"), {ui.OPTIONS: wrap_ctr, ui.CONFIRM: wrap_ctr},
 	(GameSelect, songdata)],
-       [_("Map Keys"), {ui.START: wrap_ctr, ui.CONFIRM: wrap_ctr},
+       [_("Map Keys"), {ui.OPTIONS: wrap_ctr, ui.CONFIRM: wrap_ctr},
         (pad.PadConfig, (screen,))],
        (_("Game Options"),
         [_("Autofail"), onoff_opt, (_("autofail"),)],

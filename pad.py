@@ -117,8 +117,6 @@ class Pad(object):
 
   def __init__(self, handler = pygame.event):
     self.handler = handler
-    self.handler.set_blocked(range(NUMEVENTS))
-    self.handler.set_allowed((KEYUP, KEYDOWN, JOYBUTTONUP, JOYBUTTONDOWN))
 
     self.states = {}
     self.events = {}

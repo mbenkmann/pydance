@@ -181,7 +181,7 @@ OPTS = [ "speed", "transform", "size", "fade", "accel", "scale",
 O_HELP = [
   _("Up / Down: Select option"),
   _("Left / Right: Change value"),
-  _("Start: Return to song selector"),
+  _("F1 / Start: Return to song selector"),
   _("F11: Toggle fullscreen")
   ]
 
@@ -336,24 +336,25 @@ class OptionScreen(InterfaceWindow):
       opt = self.optlist[self._index[i]]
       self._displayers[i].set_index(index_of(self._configs[i][opt], opt))
 
-    while ev not in [ui.START, ui.CANCEL, ui.CONFIRM]:
-      if pid >= self._players: pass
+    while ev not in [ui.OPTIONS, ui.CANCEL, ui.CONFIRM]:
+      if pid >= self._players:
+        pass
 
-      elif ev == ui.UP:
+      elif pid >= 0 and ev == ui.UP:
         self._index[pid] = (self._index[pid] - 1) % len(self.optlist)
         self._lists[pid].set_index(self._index[pid], -1)
-      elif ev == ui.DOWN:
+      elif pid >= 0 and ev == ui.DOWN:
         self._index[pid] = (self._index[pid] + 1) % len(self.optlist)
         self._lists[pid].set_index(self._index[pid], 1)
 
-      elif ev == ui.LEFT:
+      elif pid >= 0 and ev == ui.LEFT:
         opt = self.optlist[self._index[pid]]
         if OPTIONS[opt][PP]: index = index_of(self._configs[pid][opt], opt)
         else: index = index_of(self._config[opt], opt)
         if index > 0: index -= 1
         if OPTIONS[opt][PP]: self._configs[pid][opt] = value_of(index, opt)
         else: self._config[opt] = value_of(index, opt)
-      elif ev == ui.RIGHT:
+      elif pid >= 0 and ev == ui.RIGHT:
         opt = self.optlist[self._index[pid]]
         if OPTIONS[opt][PP]: index = index_of(self._configs[pid][opt], opt)
         else: index = index_of(self._config[opt], opt)
@@ -365,13 +366,13 @@ class OptionScreen(InterfaceWindow):
         mainconfig["fullscreen"] ^= 1
         pygame.display.toggle_fullscreen()
 
-      if ev in [ui.UP, ui.DOWN]:
+      if pid >= 0 and ev in [ui.UP, ui.DOWN]:
         values = OPTIONS[self.optlist[self._index[pid]]][VALUES]
         names = [v[NAME] for v in values]
         self._displayers[pid].set_possible(names)
         self._text[pid].set_text(OPTIONS[self.optlist[self._index[pid]]][DESCRIPTION])
 
-      if ev in [ui.LEFT, ui.RIGHT, ui.UP, ui.DOWN]:
+      if pid >= 0 and ev in [ui.LEFT, ui.RIGHT, ui.UP, ui.DOWN]:
         opt = self.optlist[self._index[pid]]
         if OPTIONS[opt][PP]:
           val = self._configs[pid][opt]

@@ -41,8 +41,8 @@ CS_HELP = [
   _("Enter / Up Right: Open a folder or start a course"),
   _("Escape / Up Left: Close a folder or exit"),
   _("Tab / Select: Go to a random course"),
-  _("Start: Switch to Options screen"),
-  _("F11: Toggle fullscreen - S: Change the sort mode"),
+  _("F1 / Start: Switch to Options screen"),
+  _("F11: Toggle fullscreen - Ins: Change the sort mode"),
   ]
 
 class CourseDisplay(object):
@@ -258,8 +258,8 @@ class CourseSelector(InterfaceWindow):
       # the pid later, which will be bad.
       if pid >= len(self._configs): ev = ui.PASS
       
-      elif ev == ui.UP: self._index -= 1
-      elif ev == ui.DOWN: self._index += 1
+      elif pid < 0 and ev == ui.UP: self._index -= 1
+      elif pid < 0 and ev == ui.DOWN: self._index += 1
       elif ev == ui.PGUP:
         self._index -= 4
         ev = ui.UP
@@ -267,7 +267,7 @@ class CourseSelector(InterfaceWindow):
         self._index += 4
         ev = ui.DOWN
 
-      elif ev == ui.SELECT:
+      elif ev == ui.RANDOM:
         if self._course.isfolder:
           self._course = random.choice(self._all_courses)
           root_idx = [fol.name for fol in self._courses].index(self._course.folder[SORT_NAMES[mainconfig["sortmode"]]])
@@ -293,7 +293,7 @@ class CourseSelector(InterfaceWindow):
           self._index = self._courses.index(s)
           self._list.set_items([s.name for s in self._courses])
 
-      elif ev == ui.START:
+      elif ev == ui.OPTIONS:
         options.OptionScreen(self._configs, self._config, self._screen)
         self._screen.blit(self._bg, [0, 0])
         self.update()
@@ -314,7 +314,6 @@ class CourseSelector(InterfaceWindow):
           music.fadeout(500) # The just-played song
           self._screen.blit(self._bg, [0, 0])
           pygame.display.update()
-          ui.ui.empty()
           ui.ui.clear()
 
       elif ev == ui.CANCEL:
@@ -328,7 +327,7 @@ class CourseSelector(InterfaceWindow):
       self._index %= len(self._courses)
       self._course = self._courses[self._index]
 
-      if ev in [ui.CANCEL, ui.UP, ui.DOWN, ui.SELECT, ui.CONFIRM, ui.SORT]:
+      if ev in [ui.CANCEL, ui.UP, ui.DOWN, ui.RANDOM, ui.CONFIRM, ui.SORT]:
         if ev == ui.UP: self._list.set_index(self._index, -1)
         elif ev == ui.DOWN: self._list.set_index(self._index, 1)
         else: self._list.set_index(self._index, 0) # don't animate

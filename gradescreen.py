@@ -285,9 +285,9 @@ class GradingScreen(InterfaceWindow):
         screenshot = True
       # The first time we hit start, advance the time counter to stop
       # all the animations.
-      elif (ev == ui.CONFIRM or ev == ui.START or
+      elif (ev == ui.CONFIRM or ev == ui.OPTIONS or
             (pygame.time.get_ticks() - start > 3333 and not self._time_bonus)):
-        exits.extend([ui.CONFIRM, ui.START])
+        exits.extend([ui.CONFIRM, ui.OPTIONS])
         ev = ui.PASS
         self._time_bonus = 3333
 

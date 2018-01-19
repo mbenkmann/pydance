@@ -218,12 +218,12 @@ msgid "Tab / Select: Go to a random course"
 msgstr "Tab / Select: vés a una recopilació aleatòria"
 
 #: courseselect.py:44
-msgid "Start: Switch to Options screen"
-msgstr "Start: vés a la pantalla d'opcions"
+msgid "F1 / Start: Switch to Options screen"
+msgstr "F1 / Start: vés a la pantalla d'opcions"
 
 #: courseselect.py:45 songselect.py:58
-msgid "F11: Toggle fullscreen - S: Change the sort mode"
-msgstr "F11: pantalla completa - S: canvia l'ordenació"
+msgid "F11: Toggle fullscreen - Ins: Change the sort mode"
+msgstr "F11: pantalla completa - Ins: canvia l'ordenació"
 
 #: courseselect.py:74
 #, python-format
@@ -287,8 +287,8 @@ msgid "Confirm: Begin   Cancel: Stop"
 msgstr "Confirm: comença   Cancel: para"
 
 #: dance.py:228
-msgid "Start: Change Options"
-msgstr "Start: canvia les opcions"
+msgid "F1 / Start: Change Options"
+msgstr "F1 / Start: canvia les opcions"
 
 #: dance.py:265 endless.py:38
 #, python-format
@@ -349,8 +349,8 @@ msgid "Escape / Up Left: Go back to the game selection screen"
 msgstr "ESC / Amunt esquerra: va endarrere a la pantalla de selecció de joc"
 
 #: endless.py:26
-msgid "Start: Go to the options screen / F11: Toggle fullscreen"
-msgstr "Start: opcions / F11: pantalla completa"
+msgid "F1 / Start: Go to the options screen / F11: Toggle fullscreen"
+msgstr "F1 / Start: opcions / F11: pantalla completa"
 
 #: endless.py:47
 msgid "Select by Difficulty"
@@ -1494,8 +1494,8 @@ msgid "Left / Right: Change value"
 msgstr "esquerra / Dreta: canvia la dificultat"
 
 #: options.py:178
-msgid "Start: Return to song selector"
-msgstr "Start: torna al selector de cançons"
+msgid "F1 / Start: Return to song selector"
+msgstr "F1 / Start: torna al selector de cançons"
 
 #: options.py:179
 msgid "F11: Toggle fullscreen"
@@ -1846,8 +1846,8 @@ msgid "Tab / Select: Go to a random song"
 msgstr "Tab / Select: tria una cançó aleatòria"
 
 #: songselect.py:57
-msgid "Start: Go to the options screen"
-msgstr "Start: va a la pantalla d'opcions"
+msgid "F1 / Start: Go to the options screen"
+msgstr "F1 / Start: va a la pantalla d'opcions"
 
 #: songselect.py:78
 #, python-format

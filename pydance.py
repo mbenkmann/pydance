@@ -190,7 +190,7 @@ def main():
   song_list = None
   course_list = None
   record_dict = None
-  ui.ui.empty()
+  ui.ui.clear()
 
   if len(songs) < 1:
     ErrorMessage(screen,
