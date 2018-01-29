@@ -417,7 +417,7 @@ class Player(object):
       current_hold = self.should_hold(steps, dir, curtime)
       dir_idx = self.game.dirs.index(dir)
       if current_hold is not None:
-        if self.states[(pid, dir)]:
+        if self.states.get((pid, dir),False):
           if judge.holdsub.get(holding[dir_idx]) != -1:
             toparrfx[dir].holding(1)
           holding[dir_idx] = current_hold
