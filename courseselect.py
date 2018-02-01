@@ -294,10 +294,13 @@ class CourseSelector(InterfaceWindow):
           self._list.set_items([s.name for s in self._courses])
 
       elif ev == ui.OPTIONS:
-        options.OptionScreen(self._configs, self._config, self._screen)
+        opts = options.OptionScreen(self._configs, self._config, self._screen)
         self._screen.blit(self._bg, [0, 0])
         self.update()
         pygame.display.update()
+        if opts.start_dancing:
+          ev = ui.CONFIRM
+          continue
 
       elif ev == ui.CONFIRM:
         if self._course.isfolder:

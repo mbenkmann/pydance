@@ -177,12 +177,14 @@ class Endless(InterfaceWindow):
       pid, ev = ui.ui.poll()
 
       if ev == ui.OPTIONS:
-        options.OptionScreen(self.player_configs, self.game_config, screen)
+        opts = options.OptionScreen(self.player_configs, self.game_config, screen)
         self._screen.blit(self._bg, [0, 0])
         pygame.display.update()
+        if opts.start_dancing:
+          ev = ui.CONFIRM
 
       # Start game
-      elif ev == ui.CONFIRM:
+      if ev == ui.CONFIRM: # not elif !!!
         dance.play(screen, FakePlaylist(songitems, self.constraints,
                                         screen, gametype),
                    self.player_configs, self.game_config, gametype)

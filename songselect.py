@@ -313,10 +313,13 @@ class SongSelect(InterfaceWindow):
             error.ErrorMessage(screen, _("You don't have any songs here that ") +
                                _("are marked \"valid\" for random selection."))
       elif ev == ui.OPTIONS:
-        options.OptionScreen(self._configs, self._config, self._screen)
+        opts = options.OptionScreen(self._configs, self._config, self._screen)
         self._screen.blit(self._bg, [0, 0])
         self.update()
         pygame.display.update()
+        if opts.start_dancing:
+          ev = ui.CONFIRM
+          continue
 
       elif ev == ui.SORT:
         s = self._songitems[self._index]

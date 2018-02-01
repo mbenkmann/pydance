@@ -242,7 +242,7 @@ class SongInfoScreen(InterfaceWindow):
 
       pid, ev = ui.ui.poll()
       if ev == ui.OPTIONS:
-        options.OptionScreen(self.configs, self.songconf, self._screen,
+        opts = options.OptionScreen(self.configs, self.songconf, self._screen,
                              whitelist = [x[0] for x in changeable_between])
         
         for pid in range(len(self.diffs)):
@@ -252,6 +252,9 @@ class SongInfoScreen(InterfaceWindow):
         self._screen.blit(self._bg, [0, 0])
         pygame.display.update()
         self.update()
+        if opts.start_dancing:
+          ev = ui.CONFIRM
+          break
           
       elif ev == ui.SCREENSHOT:
         self.update(screenshot=True)

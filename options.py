@@ -31,6 +31,9 @@ OPTIONS = {
   # 3. A list of 3-tuples (a, b, c) where a is the value of the option.
   #    b is the string to display for that value, and c is a string
   #    describing the value.
+  "__start__": (False, _("Start Dancing"),
+            _("Press Right, Start or Confirm to start the game."),
+            [(0,"","")]),
   "speed": (True, _("Speed"),
             _("Adjust the speed at which the arrows scroll across the screen."),
             zip([0.25, 0.33, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 4, 5, 8, -200, -300, -400, -500, -600, -700, -800],
@@ -282,10 +285,13 @@ class OptionScreen(InterfaceWindow):
   def __init__(self, player_configs, game_config, screen, whitelist=None):
     InterfaceWindow.__init__(self, screen, "option-bg.png")
 
+    self.optlist = ["__start__"]
+    self.start_dancing = False
+
     if whitelist is None:
-      self.optlist = OPTS
+      self.optlist.extend(OPTS)
     else:
-      self.optlist = [opt for opt in OPTS if opt in whitelist]
+      self.optlist.extend(opt for opt in OPTS if opt in whitelist)
 
     self._configs = player_configs
     self._config = game_config
@@ -295,7 +301,8 @@ class OptionScreen(InterfaceWindow):
                            25, 9, 176, [10, 10])]
     self._text = [WrapTextDisplay(FontTheme.Opts_description, 430, [198, 165], centered = True,
                                   str = OPTIONS[self.optlist[0]][DESCRIPTION])]    
-    val = self._configs[0][self.optlist[0]]
+    #val = self._configs[0][self.optlist[0]]
+    val = 0
     names = [v[NAME] for v in OPTIONS[self.optlist[0]][VALUES]]
     desc = OPTIONS[self.optlist[0]][VALUES][index_of(val, self.optlist[0])][DESCRIPTION]
     self._text2 = [WrapTextDisplay(FontTheme.Opts_choice_description, 430, [198, 105], centered = True,
@@ -311,7 +318,8 @@ class OptionScreen(InterfaceWindow):
       self._text.append(WrapTextDisplay(FontTheme.Opts_description, 430, [10, 275], centered = True,
                                         str = OPTIONS[self.optlist[0]][DESCRIPTION]))
       ActiveIndicator([448, 341], height = 25, width = 185).add(self._sprites)
-      val = self._configs[1][self.optlist[0]]
+      #val = self._configs[1][self.optlist[0]]
+      val = 0
       desc = OPTIONS[self.optlist[0]][VALUES][index_of(val, self.optlist[0])][DESCRIPTION]
       self._text2.append(WrapTextDisplay(FontTheme.Opts_choice_description, 430, [10, 350], centered = True,
                                          str = desc))
@@ -334,7 +342,8 @@ class OptionScreen(InterfaceWindow):
     for i, l in enumerate(self._lists): l.set_index(self._index[i])
     for i in range(self._players):
       opt = self.optlist[self._index[i]]
-      self._displayers[i].set_index(index_of(self._configs[i][opt], opt))
+      if opt != "__start__":
+        self._displayers[i].set_index(index_of(self._configs[i][opt], opt))
 
     while ev not in [ui.OPTIONS, ui.CANCEL, ui.CONFIRM]:
       if pid >= self._players:
@@ -349,6 +358,8 @@ class OptionScreen(InterfaceWindow):
 
       elif pid >= 0 and ev == ui.LEFT:
         opt = self.optlist[self._index[pid]]
+        if opt == "__start__":
+          break
         if OPTIONS[opt][PP]: index = index_of(self._configs[pid][opt], opt)
         else: index = index_of(self._config[opt], opt)
         if index > 0: index -= 1
@@ -356,6 +367,8 @@ class OptionScreen(InterfaceWindow):
         else: self._config[opt] = value_of(index, opt)
       elif pid >= 0 and ev == ui.RIGHT:
         opt = self.optlist[self._index[pid]]
+        if opt == "__start__":
+          break
         if OPTIONS[opt][PP]: index = index_of(self._configs[pid][opt], opt)
         else: index = index_of(self._config[opt], opt)
         if index != len(OPTIONS[opt][VALUES]) - 1: index += 1
@@ -375,22 +388,36 @@ class OptionScreen(InterfaceWindow):
       if pid >= 0 and ev in [ui.LEFT, ui.RIGHT, ui.UP, ui.DOWN]:
         opt = self.optlist[self._index[pid]]
         if OPTIONS[opt][PP]:
-          val = self._configs[pid][opt]
+          if opt == "__start__":
+            val = 0
+          else:
+            val = self._configs[pid][opt]
           idx = index_of(val, opt)
           self._displayers[pid].set_index(index_of(val, opt))
           self._text2[pid].set_text(OPTIONS[opt][VALUES][idx][DESCRIPTION])
         elif self._players > 1 and self._index[0] == self._index[1]:
           # If both players have the same non-per-player option
           # selected, we need to update both displayers.
-          val = self._config[opt]
+          if opt == "__start__":
+            val = 0
+          else:
+            val = self._config[opt]
           idx = index_of(val, opt)
           for i in range(self._players):
             self._displayers[i].set_index(idx)
             self._text2[pid].set_text(OPTIONS[opt][VALUES][idx][DESCRIPTION])
         else:
-          val = self._config[opt]
+          if opt == "__start__":
+            val = 0
+          else:
+            val = self._config[opt]
           idx = index_of(val, opt)
           self._displayers[pid].set_index(idx)
           self._text2[pid].set_text(OPTIONS[opt][VALUES][idx][DESCRIPTION])
       self.update()
       pid, ev = ui.ui.poll()
+    # end while
+
+    if pid < 0: pid = 0
+    if self.optlist[self._index[pid]] == "__start__":
+      self.start_dancing = ev in (ui.OPTIONS, ui.CONFIRM, ui.RIGHT)
