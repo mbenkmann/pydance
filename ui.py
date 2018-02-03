@@ -28,6 +28,9 @@ from constants import *
 
 import i18n
 
+# for debugging purposes, we keep a history of this many most recent pygame.event.Events.
+MAX_KEEP_PYGAME_EVENTS = 128
+
 # ID numbers for semantic events returned by the UI class.
 # An input event as used in pydance is a pair (pid, evid) where
 # evid is one of the following event IDs (negative if the event is turned off)
@@ -60,9 +63,34 @@ GENERIC_BUTTON = 64
 # Bit shift for encoding controller number in generic button event's pid.
 GENERIC_BUTTON_SHIFTER = 8
 
+# Minimum number of times a generic button must have been pressed
+# (with no other buttons pressed at the same time) before it can be learned as
+# UP/DOWN/LEFT/RIGHT.
 MIN_LEARN_GENERIC_BUTTON_COUNT = 5
+# Minimum percentage of times a generic button must have been seen together with
+# direction X to learn it as that direction.
 LEARN_GENERIC_BUTTON_DIRECTION = .85
+# Maximum percentage of times a generic button must have been seen together with
+# any direction for it to be learned as independent of directions.
 LEARN_GENERIC_BUTTON_INDEPENDENT = .5
+
+# Unfortunately the old SDL version that pygame uses does not give us events when
+# controllers are plugged in or removed. So in order to support hotplugging we have
+# to reinit the events system regularly. Because that risks losing events, we
+# only do that if we have not received any events for a certain amount of time.
+# Because losing events during dancing must be avoided at all costs and because it
+# is less likely that someone would un/plug controllers during a dance, the wait
+# time during dancing is very high. The reason we do it during dancing at all is
+# that if someone pulls out the controller during the dance on a keyboardless system
+# he would have to wait for the complete song to finish before he could interact
+# with the machine again. That could be several minutes.
+# When the reinit has been triggered by the expiration of the *_NO_EVENT_TIME, we
+# poll for new devices every *_INTERVAL until we see the first event.
+POLL_REINIT_CONTROLLERS_AFTER_NO_EVENT_TIME = 3000
+POLL_REINIT_CONTROLLERS_INTERVAL = 2000
+POLL_DANCE_REINIT_CONTROLLERS_AFTER_NO_EVENT_TIME = 20000
+POLL_DANCE_REINIT_CONTROLLERS_INTERVAL = 5000
+
 
 # If no output change occurs for this many milliseconds, UI.poll() will start
 # repeating REPEATABLE outputs that are being held. Mostly used so that you
@@ -70,10 +98,14 @@ LEARN_GENERIC_BUTTON_INDEPENDENT = .5
 REPEAT_INITIAL_DELAY = 250
 
 # Delay between repeats after REPEAT_INITIAL_DELAY.
-REPEAT_DELAY = 33
+REPEAT_DELAY = 80
 
 # Events that are repeatable by auto-repeat (see REPEAT_INITIAL_DELAY and poll())
-REPEATABLE = frozenset(((-1,UP),(-1,DOWN),(-1,LEFT),(-1,RIGHT)))
+REPEATABLE = frozenset(((-1,UP),(-1,DOWN),(-1,LEFT),(-1,RIGHT),
+                         (0,UP),(0,DOWN),(0,LEFT),(0,RIGHT),
+                         (1,UP),(1,DOWN),(1,LEFT),(1,RIGHT),
+                         (2,UP),(2,DOWN),(2,LEFT),(2,RIGHT),
+                         (3,UP),(3,DOWN),(3,LEFT),(3,RIGHT)))
 
 # These events are prefixed with "P1_" or "P2_" in the config file and
 # have a pid 0 or 1 associated with them when used in pydance input events.
@@ -154,15 +186,16 @@ class EventValve(object):
     self.evlist = evlist
     self.pressure = start_pressure
     self.start_pressure = start_pressure
+    self.enabled = True
 
   def plus(self):
-    if self.pressure == 0:
+    if self.enabled and self.pressure == 0:
       self.evlist.append(self.open)
     self.pressure += 1
 
   def minus(self):
     self.pressure -= 1
-    if self.pressure == 0:
+    if self.enabled and self.pressure == 0:
       self.evlist.append(self.closed)
 
   def reset(self):
@@ -267,6 +300,30 @@ class EventForkValve(object):
         have = True
       i += 1
 
+class PIDTransposer(object):
+  def __init__(self, adder):
+    self.adder = adder
+    self.done = set()
+
+  def visit(self, inputs, outputs):
+    for valve in outputs:
+      if valve not in self.done:
+        self.done.add(valve)
+        pid, evid = valve.open
+        if pid >= 0:
+          pid = (pid & ~PLAYERS_MASK) + ((pid + self.adder) & PLAYERS_MASK)
+          valve.open = (pid, valve.open[1])
+          valve.closed = (pid, valve.closed[1])
+
+class MenuControlsEnabled(object):
+  def __init__(self, onoff):
+    self.onoff = onoff
+
+  def visit(self, inputs, outputs):
+    for valve in outputs:
+      if valve.open[0] < 0:
+        valve.enabled = self.onoff
+
 class PlumbingStringer(object):
   '''
   Used with EventPlumbing.visit() to produce a string representation of
@@ -288,7 +345,10 @@ class PlumbingStringer(object):
     for valve in outputs:
       pid,evid = valve.open
       if pid > 0: pid = pid & PLAYERS_MASK
-      output_strings.append(valvenames[(pid,evid)])
+      if valve.enabled:
+        output_strings.append(valvenames[(pid,evid)])
+      else:
+        output_strings.append('!'+valvenames[(pid,evid)])
     self.lines.append("%s = %s" % (" ".join(input_strings), " ".join(output_strings)))
 
 class EventPlumbing(object):
@@ -471,6 +531,14 @@ class EventPlumbing(object):
       for x in lst:
         x.reset()
 
+  def transpose_player(self, adder):
+    '''Adds adder to all EventValves' pid >=0 , wrapping around at MAX_PLAYERS.'''
+    self.visit(PIDTransposer(adder))
+  
+  def menu_controls_enabled(self, onoff):
+    ''' Enables (onoff=True) or disables (onoff=False) all EventValves with pid < 0. '''
+    self.visit(MenuControlsEnabled(onoff))
+
   def clone(self):
     '''
     Creates an independent copy of this valve network. In particular it makes copies of the
@@ -580,6 +648,10 @@ default_keyboard_plumbing = EventPlumbing([], '''
 ''')
 
 
+ # Most gamepads seem to have Start on a button >=6 (based on https://raw.githubusercontent.com/gabomdq/SDL_GameControllerDB/master/gamecontrollerdb.txt).
+ # with an odd number (1st place 9, 2nd place 7, 3rd place 11). We default all odd numbered
+ # buttons >6 to OPTIONS and the rest to CANCEL. Because OPTIONS works as CONFIRM in most places
+ # this allows players to navigate the game without button mappings right away.
 default_controller_plumbing = EventPlumbing([], '''
 A- = LEFT P1_LEFT
 A+ = RIGHT P1_RIGHT
@@ -592,47 +664,47 @@ B+ = DOWN P1_DOWN
 3 = P1_BUTTON_3
 4 = P1_BUTTON_4
 5 = P1_BUTTON_5
-6 = P1_BUTTON_6
-7 = P1_BUTTON_7
-8 = P1_BUTTON_8
-9 = P1_BUTTON_9
-10 = P1_BUTTON_10
-11 = P1_BUTTON_11
-12 = P1_BUTTON_12
-13 = P1_BUTTON_13
-14 = P1_BUTTON_14
-15 = P1_BUTTON_15
-16 = P1_BUTTON_16
-17 = P1_BUTTON_17
-18 = P1_BUTTON_18
-19 = P1_BUTTON_19
-20 = P1_BUTTON_20
-21 = P1_BUTTON_21
-22 = P1_BUTTON_22
-23 = P1_BUTTON_23
-24 = P1_BUTTON_24
-25 = P1_BUTTON_25
-26 = P1_BUTTON_26
-27 = P1_BUTTON_27
-28 = P1_BUTTON_28
-29 = P1_BUTTON_29
-30 = P1_BUTTON_30
-31 = P1_BUTTON_31
+6 = CANCEL
+7 = OPTIONS
+8 = CANCEL
+9 = OPTIONS
+10 = CANCEL
+11 = OPTIONS
+12 = CANCEL
+13 = OPTIONS
+14 = CANCEL
+15 = OPTIONS
+16 = CANCEL
+17 = OPTIONS
+18 = CANCEL
+19 = OPTIONS
+20 = CANCEL
+21 = OPTIONS
+22 = CANCEL
+23 = OPTIONS
+24 = CANCEL
+25 = OPTIONS
+26 = CANCEL
+27 = OPTIONS
+28 = CANCEL
+29 = OPTIONS
+30 = CANCEL
+31 = OPTIONS
 ''')
 
 class GenericButtonsFixup(object):
   '''
-  Adds a number to the pid of every EventValve's output event that refers to a
+  Embeds joy << GENERIC_BUTTON_SHIFTER in the pid of every EventValve's output event that refers to a
   event id >= GENERIC_BUTTON.
   '''
-  def __init__(self, fixup):
-    self.fixup = fixup
+  def __init__(self, joy):
+    self.fixup = joy << GENERIC_BUTTON_SHIFTER
 
   def visit(self, inputs, outputs):
     for valve in outputs:
-      if valve.open[1] >= GENERIC_BUTTON and valve.open[0] < MAX_PLAYERS: # the 2nd check is to prevent fixing up twice
-        valve.open = (valve.open[0]+self.fixup, valve.open[1])
-        valve.closed = (valve.closed[0]+self.fixup, valve.closed[1])
+      if valve.open[1] >= GENERIC_BUTTON:
+        valve.open = ((valve.open[0] & PLAYERS_MASK)+self.fixup, valve.open[1])
+        valve.closed = ((valve.closed[0] & PLAYERS_MASK)+self.fixup, valve.closed[1])
 
 class ReplaceEvent(object):
   def __init__(self, oldpidevid, pid, evid):
@@ -645,6 +717,15 @@ class ReplaceEvent(object):
       if valve.open == self.oldpidevid:
         valve.open = (self.pid, self.evid)
         valve.closed = (self.pid, -self.evid)
+
+class DisableEvent(object):
+  def __init__(self, pid, evid):
+    self.pidevid = (pid, evid)
+
+  def visit(self, inputs, outputs):
+    for valve in outputs:
+      if valve.open == self.pidevid:
+        valve.enabled = False
 
 class RepeatEvent(object):
   def __init__(self):
@@ -687,6 +768,51 @@ class DebugValves(object):
       if valve.pressure != valve.start_pressure:
         print("%s %s" % (id(valve),valve.__dict__))
 
+class Controller(object):
+  def __init__(self, pygame):
+    self.pygame = pygame
+    self.plumbing = None
+    self.num_hats = pygame.get_numhats()
+    self.button_state = [False] * MAX_BUTTONS
+    self.num_pressed = 0 # number of buttons currently in pressed state
+    # axis_state is a list of N booleans corresponding to the virtual buttons derived from
+    # the axes. The list always starts with states derived from hats. Each
+    # hat generates 6 axis states: x < 0, x == 0, x > 0, y < 0, y == 0, y > 0
+    # This is followed by the axis states for the analog axes. Each analog axis generates
+    # 3 axis states: a < -.5, a in [-.5,.5], a > .5
+    self.axis_state = []
+    for h in range(self.num_hats):
+      self.axis_state.extend((False,False,False,False,False,False))
+    for a in range(pygame.get_numaxes()):
+      self.axis_state.extend((False,False,False))
+    # Used for learning the relationship (if any) of generic buttons with directional axes.
+    # for button >= GENERIC_BUTTON: generic_buttons[button] = [total, left, right, up, down]
+    # where
+    #   total is the total number of times this button has been seen in the event_buffer
+    #   up is the number of times (pid, UP) was seen at the same time in the event_buffer
+    #   ditto for left,right,down
+    self.generic_buttons = {}
+    
+
+  def pressed(self, button):
+    if not self.button_state[button]:
+      self.button_state[button] = True
+      self.plumbing.plus(button)
+      self.num_pressed += 1
+  
+  def released(self, button):
+    if self.button_state[button]:
+      self.button_state[button] = False
+      self.plumbing.minus(button)
+      self.num_pressed -= 1
+
+  def reset(self):
+    for i in range(len(self.button_state)):
+      self.button_state[i] = False
+    for i in range(len(self.axis_state)):
+      self.axis_state[i] = False
+    self.generic_buttons = {}
+    self.num_pressed = 0
 
 class UI(object):
   '''
@@ -696,106 +822,130 @@ class UI(object):
   into a ui.SCREENSHOT event. See EventPlumbing.
   '''
   def __init__(self, ebuf = event_buffer):
-
-
+    # list of lists of pygame.event.Event objects, one for each call of pump().
+    self.pygame_events = deque()
+    # sum of the lengths of all lists in pygame_events.
+    self.pygame_events_count = 0
+    
     # stores tuples (pid, evid) or (pid, -evid) for button presses/releases.
     # Used as FIFO. EventValves append data. poll() and poll_dance() remove it.
     self.event_buffer = ebuf
 
     # this logs the last time an output even was produced in pump()
     self.last_valve_change_time = pygame.time.get_ticks()
+    
+    # this logs the last time, a non-empty event list was received from pygame
+    self.last_pygame_events_time = pygame.time.get_ticks()
 
     # this is the earliest time at which poll() will trigger an auto-repeat.
     self.next_repeat_time = pygame.time.get_ticks()
 
+    # the pressed/released state of every keyboard key by pygame.Event.key number.
+    self.key_state = [False] * 512
+
     # the EventPlumbing used for keyboard inputs.
-    self.keyboard_plumbing = None
+    self.keyboard_plumbing = default_keyboard_plumbing.clone()
 
-    # list of pygame.joystick.Joystick objects. Array index matches pygame's joystick id.
+    # list of Controller objects. Array index matches pygame's joystick id.
     self.controllers = []
+    
+    # controller_names[i] is controllers[i].pygame.get_name()
+    self.controller_names = []
 
-    # maps a pygame.joystick.Joystick.get_name() to a list of indexes into self.controllers that share that name.
-    self.name2controllers = {}
-
-    # controller_plumbing[i] is the EventPlumbing used for controllers[i].
-    self.controller_plumbing = []
-
-    # num_hats[i] is the number of hats of controllers[i]
-    self.num_hats = []
-
-    # axis_state[i] is a list of N booleans corresponding to the virtual buttons derived from
-    # the axes of controllers[i]. The list always starts with states derived from hats. Each
-    # hat generates 6 axis states: x < 0, x == 0, x > 0, y < 0, y == 0, y > 0
-    # This is followed by the axis states for the analog axes. Each analog axis generates
-    # 3 axis states: a < -.5, a in [-.5,.5], a > .5
-    self.axis_state = []
-
-    # Used for learning the relationship (if any) of generic buttons with directional axes.
-    # for button >= GENERIC_BUTTON: generic_buttons[(pid,button)] = [total, left, right, up, down]
-    # where 0 <= pid, pid is the player number ANDed with controller index << GENERIC_BUTTON_SHIFTER.
-    # total is the total number of times this button has been seen in the event_buffer
-    #       up is the number of times (pid, UP) was seen at the same time in the event_buffer
-    #       ditto for left,right,down
-    self.generic_buttons = {}
-
-    self.oddeven = 1 # 1 => odd, 0 => even
-
-    # We learn the oddeven setting from the first press of a generic button with no
-    # simultaneous directional input. The idea is that the first button someone presses in
-    # the game is going to be CONFIRM to activate one of the menu items.
-    self.oddeven_learned = False
+    # Used by _can_skip_init_controllers()
+    self._init_controllers_state = {}
 
     self.learn_sound = pygame.mixer.Sound(os.path.join(sound_path, "assist-l.ogg"))
     self.learn_sound.set_volume(.345)
+    self.plug_in_sound = pygame.mixer.Sound(os.path.join(sound_path, "clicked.ogg"))
+    self.plug_in_sound.set_volume(.345)
+    self.pull_out_sound = pygame.mixer.Sound(os.path.join(sound_path, "back.ogg"))
+    self.pull_out_sound.set_volume(.345)
 
     self.init_controllers()
 
-  def init_controllers(self):
-    pygame.joystick.quit() # turn of joystick module to make sure following init() rescans for controllers
-    pygame.joystick.init()
+  def force_init_controllers(self):
+    '''Forces reinitialisation of the event subsystem.'''
     self.controllers = []
+    self.controller_names = []
+    self._init_controllers_state = {}
+    self.init_controllers()
+  
+  def init_controllers(self):
+    if self._can_skip_init_controllers():
+      return
+
+    pygame.joystick.quit() # turn off joystick module to make sure following init() rescans for controllers
+    pygame.joystick.init()
+    controller_names = []
+    sticks = []
     for joy in range(pygame.joystick.get_count()):
-      self.controllers.append(pygame.joystick.Joystick(joy))
-      self.controllers[joy].init()
+      stick = pygame.joystick.Joystick(joy)
+      stick.init()
+      sticks.append(stick)
+      controller_names.append(stick.get_name())
 
-    self.init_controllers_continued()
+    if controller_names != self.controller_names:
+      if len(controller_names) < len(self.controller_names):
+        self.pull_out_sound.play()
+      else:
+        self.plug_in_sound.play()
+        
+      controllers = []
+      i = 0
+      while i < len(controller_names):
+        name = controller_names[i]
+        idx = 0
+        k = i - 1
+        while k >= 0:
+          if controller_names[k] == name:
+            idx += 1
+          k -= 1
 
-  def init_controllers_continued(self):
-    '''
-    This function assumes that self.controllers is filled with pygame.joystick.Joystick objects
-    that are active and ready to send events (i.e. init() has been called on them). Everything
-    else will be re-initialized. The init_controllers()/init_controllers_continued() split exists
-    to allow implementing unit tests using mock joystick objects.
-    '''
-    self.oddeven = 1 # Most gamepads seem to have Start on an odd-numbered button (based on https://raw.githubusercontent.com/gabomdq/SDL_GameControllerDB/master/gamecontrollerdb.txt).
-    self.oddeven_learned = False
-    self.keyboard_plumbing = default_keyboard_plumbing.clone()
-    self.name2controllers = {}
-    self.controller_plumbing = []
-    self.num_hats = []
-    self.axis_state = []
-    for joy in range(len(self.controllers)):
-      self.name2controllers.setdefault(self.controllers[joy].get_name(),[]).append(joy)
-      self.controller_plumbing.append(default_controller_plumbing.clone())
-      self.controller_plumbing[joy].visit(GenericButtonsFixup(joy << GENERIC_BUTTON_SHIFTER))
-      hats = self.controllers[joy].get_numhats()
-      self.num_hats.append(hats)
-      axes = self.controllers[joy].get_numaxes()
-      self.axis_state.append([])
-      for h in range(hats):
-        self.axis_state[joy].extend((False,False,False,False,False,False))
-      for a in range(axes):
-        self.axis_state[joy].extend((False,False,False))
+        # idx is the number of controllers of the same name that precede this controller.
+        # We assume that if multiple controllers have the same name, they are used by
+        # player 1, player 2,...
+        # Controllers with different names are all assigned to player 1 by default, because
+        # we have no way of knowing which should be player 2. Using the pygame joystick index
+        # for this is a bad idea because
+        # a) it changes based on the order controllers a plugged into USB ports
+        # b) if 1 game pad and 1 dance pad are connected, it's usually not for 2 player games
+
+        idx2 = 0
+        k = 0
+        joy = len(controllers)
+        while k < len(self.controller_names):
+          if self.controller_names[k] == name:
+            if idx2 == idx: # found a corresponding entry in self.controller_names/self.controllers
+              self.controllers[k].pygame = sticks[i]  # update the pygame object
+              controllers.append(self.controllers[k]) # reuse the rest (in particular the plumbing)
+              break
+            idx2 += 1
+          k += 1
+        else: # if the previous while did not find a corresponding old entry => create new one
+          controllers.append(Controller(sticks[i]))
+          controllers[joy].plumbing = default_controller_plumbing.clone()
+          controllers[joy].plumbing.transpose_player(idx)
+          if idx > 0:
+            controllers[joy].plumbing.menu_controls_enabled(False)  # don't want player 2 to control menu
+
+        controllers[joy].plumbing.visit(GenericButtonsFixup(joy))
+        i += 1
+      # end while
+      
+      self.controllers = controllers
+      self.controller_names = controller_names
 
   def set_keyboard_plumbing(self, kb):
     self.keyboard_plumbing = kb
+    self.key_state = [False] * 512 # must reset key state or plumbing's valves don't match
 
   def set_controller_plumbing(self, joy, pb):
-    self.generic_buttons = {}
-    self.controller_plumbing[joy] = pb
-    self.controller_plumbing[joy].visit(GenericButtonsFixup(joy << GENERIC_BUTTON_SHIFTER))
+    self.controllers[joy].plumbing = pb
+    self.controllers[joy].plumbing.visit(GenericButtonsFixup(joy))
+    self.controllers[joy].reset()
 
-  def poll(self):
+  def poll(self, autorepeat = True, reinit_time = POLL_REINIT_CONTROLLERS_AFTER_NO_EVENT_TIME, reinit_interval = POLL_REINIT_CONTROLLERS_INTERVAL):
     '''
     Returns a pair (pid, evid) or (pid, -evid) where
       * pid is the player id the event belongs to (0..MAX_PLAYERS-1) or -1 if it is
@@ -807,27 +957,45 @@ class UI(object):
 
     The special evid 0 (==PASS) is returned with pid<0 when no event is pending.
 
-    This function also converts all buttons >= GENERIC_BUTTON to either CONFIRM or CANCEL.
-
-    If no events occur for REPEAT_INITIAL_DELAY, outputs that are being held and are in the
-    REPEATABLE set will be repeated every REPEAT_DELAY ms.
+    If autorepeat == True and no events occur for REPEAT_INITIAL_DELAY, outputs that
+    are being held and are in the REPEATABLE set will be repeated every REPEAT_DELAY ms.
 
     During dancing, the special function poll_dance() is used instead of this one.
     '''
+    ticks = pygame.time.get_ticks()
+    
     if len(self.event_buffer) == 0:
-      self.pump(pygame.event.get())
-      self._translate_generic_buttons()
+      events = pygame.event.get()
+      if len(events) > 0:
+        self.last_pygame_events_time = ticks
+        self.pump(events)
+      else:
+        if ticks > self.last_pygame_events_time + reinit_time:
+          self.last_pygame_events_time = ticks - reinit_time + reinit_interval
+          self.init_controllers()
+
+    # discard generic button events
+    while len(self.event_buffer) > 0 and (
+          self.event_buffer[0][1] >= GENERIC_BUTTON or self.event_buffer[0][1] <= -GENERIC_BUTTON):
+      self.event_buffer.popleft()
 
     if len(self.event_buffer) == 0:
-      if pygame.time.get_ticks() > self.last_valve_change_time + REPEAT_INITIAL_DELAY:
-        if pygame.time.get_ticks() > self.next_repeat_time:
-          self.next_repeat_time = pygame.time.get_ticks() + REPEAT_DELAY
+      if autorepeat and ticks > self.last_valve_change_time + REPEAT_INITIAL_DELAY:
+        if ticks > self.next_repeat_time:
+          self.next_repeat_time = ticks + REPEAT_DELAY
           self.repeat_output()
 
       if len(self.event_buffer) == 0:
         return (-1, PASS)
 
     return self.event_buffer.popleft()
+
+  def poll_dance(self):
+    '''
+    Similar to poll() but filters out some events you don't want during the dance part.
+    In particular it does not have any auto-repeat functionality.
+    '''
+    return self.poll(False, POLL_DANCE_REINIT_CONTROLLERS_AFTER_NO_EVENT_TIME, POLL_DANCE_REINIT_CONTROLLERS_INTERVAL)
 
   def repeat_output(self):
     '''
@@ -838,40 +1006,20 @@ class UI(object):
     '''
     self.keyboard_plumbing.visit(RepeatEvent())
     for joy in range(len(self.controllers)):
-      self.controller_plumbing[joy].visit(RepeatEvent())
+      self.controllers[joy].plumbing.visit(RepeatEvent())
 
   def count_open_valves(self):
     ''' Returns the number of currently open output valves, i.e. asserted events.'''
     count = CountOpenValves()
     for joy in range(len(self.controllers)):
-      self.controller_plumbing[joy].visit(count)
+      self.controllers[joy].plumbing.visit(count)
     return count.count
 
   def count_valves(self, joy):
     ''' Returns the total number of output valves for controller joy.'''
     count = CountOpenValves()
-    self.controller_plumbing[joy].visit(count)
+    self.controllers[joy].plumbing.visit(count)
     return len(count.already_done)
-
-  def poll_dance(self):
-    '''
-    Similar to poll() but filters out some events you don't want during the dance part.
-    In particular it does not return CONFIRM/CANCEL for GENERIC_BUTTONs.
-    Also does not have any auto-repeat functionality.
-
-    The special evid 0 (==PASS) is returned with pid<0 when no event is pending.
-    '''
-    if len(self.event_buffer) == 0:
-      self.pump(pygame.event.get())
-
-    while len(self.event_buffer) > 0 and (
-          self.event_buffer[0][1] >= GENERIC_BUTTON or self.event_buffer[0][1] <= -GENERIC_BUTTON):
-      self.event_buffer.popleft()
-
-    if len(self.event_buffer) == 0:
-      return (-1, PASS)
-
-    return self.event_buffer.popleft()
 
   def clear(self, max_wait = 500):
     '''
@@ -897,22 +1045,29 @@ class UI(object):
 
   def pump(self, events):
     '''Process list of events (of type pygame.event.Event) and move the results into our own queue.'''
+    self.pygame_events.append(events)
+    self.pygame_events_count += len(events)
+    while self.pygame_events_count > MAX_KEEP_PYGAME_EVENTS:
+      self.pygame_events_count -= len(self.pygame_events.popleft())
+    
     num_events = len(self.event_buffer)
-    button_presses = 0
     for event in events:
       if event.type == pygame.QUIT:
         self.event_buffer.append((-1,QUIT))
       elif event.type == pygame.KEYDOWN:
-        self.keyboard_plumbing.plus(event.key)
+        if event.key < len(self.key_state) and not self.key_state[event.key]:
+          self.key_state[event.key] = True
+          self.keyboard_plumbing.plus(event.key)
       elif event.type == pygame.KEYUP:
-        self.keyboard_plumbing.minus(event.key)
+        if event.key < len(self.key_state) and self.key_state[event.key]:
+          self.key_state[event.key] = False
+          self.keyboard_plumbing.minus(event.key)
       elif event.type == pygame.JOYBUTTONDOWN:
         if event.button < MAX_BUTTONS:  # we use numbers >= MAX_BUTTONS for axes
-          button_presses += 1
-          self.controller_plumbing[event.joy].plus(event.button)
+          self.controllers[event.joy].pressed(event.button)
       elif event.type == pygame.JOYBUTTONUP:
         if event.button < MAX_BUTTONS:  # we use numbers >= MAX_BUTTONS for axes
-          self.controller_plumbing[event.joy].minus(event.button)
+          self.controllers[event.joy].released(event.button)
       elif event.type == pygame.JOYHATMOTION:
         axis = MAX_BUTTONS + event.hat * 6
         x,y = event.value
@@ -923,7 +1078,7 @@ class UI(object):
         self._handle_axis(event.joy, axis+4, y == 0)
         self._handle_axis(event.joy, axis+5, y < 0)
       elif event.type == pygame.JOYAXISMOTION:
-        axis = MAX_BUTTONS + self.num_hats[event.joy] * 6 + event.axis * 3
+        axis = MAX_BUTTONS + self.controllers[event.joy].num_hats * 6 + event.axis * 3
         a = event.value
         self._handle_axis(event.joy, axis, a < -.5)
         self._handle_axis(event.joy, axis+1, a >= -.5 and a <= .5)
@@ -931,31 +1086,18 @@ class UI(object):
 
     if len(self.event_buffer) > num_events:
       self.last_valve_change_time = pygame.time.get_ticks()
-
-    # We only trigger the learning code if there is exactly 1 button press in the events
-    # This avoids screwing up the learning in cases like <- -> where only one axis direction
-    # can be reported but both buttons.
-    # It would be better to do the whole learning (and skipping it on multi-button presses)
-    # separately for each controller, but that seems not worth the effort, as I expect it
-    # to be a very rare occurence for 2 people to play a multi-player game with 2 unknown
-    # controllers at the same time. And even if, all it does is prolong the learning process.
-    if button_presses == 1:
-      for i in range(num_events, len(self.event_buffer)):
-        pid, evid = self.event_buffer[i]
-        if evid >= GENERIC_BUTTON or evid <= -GENERIC_BUTTON:
-          self._handle_generic_buttons(num_events)
-          break
+      self._handle_generic_buttons(num_events)
 
   def _handle_axis(self, joy, axis, state):
     '''
     Update state (boolean) of axis for controller joy and pump into plumbing if it changed.
     '''
-    if self.axis_state[joy][axis-MAX_BUTTONS] != state:
-      self.axis_state[joy][axis-MAX_BUTTONS] = state
+    if self.controllers[joy].axis_state[axis-MAX_BUTTONS] != state:
+      self.controllers[joy].axis_state[axis-MAX_BUTTONS] = state
       if state:
-        self.controller_plumbing[joy].plus(axis)
+        self.controllers[joy].plumbing.plus(axis)
       else:
-        self.controller_plumbing[joy].minus(axis)
+        self.controllers[joy].plumbing.minus(axis)
 
   def _handle_generic_buttons(self, num_events):
     '''
@@ -971,19 +1113,19 @@ class UI(object):
         if evid in (LEFT,RIGHT,UP,DOWN):
           active[(pid,evid)] = 1
         elif evid >= GENERIC_BUTTON:
-          generic.append((pid,evid))
-
-    if not self.oddeven_learned and len(active) == 0 and len(generic) > 0:
-      self.oddeven_learned = True
-      self.oddeven = generic[0][1] & 1
+          joy = pid >> GENERIC_BUTTON_SHIFTER
+          if self.controllers[joy].num_pressed == 1: # only exactly this generic button is pressed
+            generic.append((pid,evid))
 
     for (pid,evid) in generic:
-      gen = self.generic_buttons.setdefault((pid,evid),[0,0,0,0,0])
+      joy = pid >> GENERIC_BUTTON_SHIFTER
+      pid = pid & PLAYERS_MASK
+      gen = self.controllers[joy].generic_buttons.setdefault(evid,[0,0,0,0,0])
       gen[0] += 1
-      gen[1] += active.get((pid & PLAYERS_MASK,LEFT),0)
-      gen[2] += active.get((pid & PLAYERS_MASK,RIGHT),0)
-      gen[3] += active.get((pid & PLAYERS_MASK,UP),0)
-      gen[4] += active.get((pid & PLAYERS_MASK,DOWN),0)
+      gen[1] += active.get((pid,LEFT),0)
+      gen[2] += active.get((pid,RIGHT),0)
+      gen[3] += active.get((pid,UP),0)
+      gen[4] += active.get((pid,DOWN),0)
 
       if gen[0] > MIN_LEARN_GENERIC_BUTTON_COUNT:
         indep = 0
@@ -991,56 +1133,50 @@ class UI(object):
         for i in (1,2,3,4):
           p = gen[i]/count
           if p > LEARN_GENERIC_BUTTON_DIRECTION:
-            joy = pid >> GENERIC_BUTTON_SHIFTER
-            self._learn_generic_button(joy, (pid,evid), pid & PLAYERS_MASK, (LEFT,RIGHT,UP,DOWN)[i-1])
+            self._learn_generic_button(joy, pid, evid, pid, (LEFT,RIGHT,UP,DOWN)[i-1])
             break
           elif p < LEARN_GENERIC_BUTTON_INDEPENDENT:
             indep += 1
 
         if indep == 4:
-          joy = pid >> GENERIC_BUTTON_SHIFTER
-          if evid & 1 == self.oddeven:
-            self._learn_generic_button(joy, (pid,evid), -1, CONFIRM)
-          else:
-            self._learn_generic_button(joy, (pid,evid), -1, CANCEL)
+          self.learn_sound.play()
+          self.controllers[joy].plumbing.visit(DisableEvent(pid + (joy << GENERIC_BUTTON_SHIFTER), evid))
+          del self.controllers[joy].generic_buttons[evid]
 
-  def _learn_generic_button(self, joy, oldpidevid, pid, evid):
+  def _learn_generic_button(self, joy, oldpid, oldevid, pid, evid):
     self.learn_sound.play()
     found = FindEvent(pid,evid)
-    self.controller_plumbing[joy].visit(found)
+    self.controllers[joy].plumbing.visit(found)
     if found.valve is not None:
-      self.controller_plumbing[joy].replace_valve(oldpidevid,found.valve)
+      self.controllers[joy].plumbing.replace_valve((oldpid + (joy << GENERIC_BUTTON_SHIFTER), oldevid),found.valve)
     else:
-      self.controller_plumbing[joy].visit(ReplaceEvent(oldpidevid, pid, evid))
-    del self.generic_buttons[oldpidevid]
+      self.controllers[joy].plumbing.visit(ReplaceEvent((oldpid + (joy << GENERIC_BUTTON_SHIFTER), oldevid), pid, evid))
+    del self.controllers[joy].generic_buttons[oldevid]
 
-  def _translate_generic_buttons(self):
-    for pid, evid in self.event_buffer:
-      # if we find any non-generic button events, discard all generic button events
-      # This should protect us from any weird shadow buttons.
-      if pid < 0 or (evid < GENERIC_BUTTON and evid > -GENERIC_BUTTON):
-        i = 0
-        while i < len(self.event_buffer):
-          pid, evid = self.event_buffer[i]
-          if evid <= -GENERIC_BUTTON or evid >= GENERIC_BUTTON:
-            del self.event_buffer[i]
-            i -= 1
-          i += 1
-        break
-    else:
-      for i in range(len(self.event_buffer)):
-        pid, evid = self.event_buffer[i]
-        if pid >= 0:
-          if evid <= -GENERIC_BUTTON:
-            if (-evid) & 1 == self.oddeven:
-              self.event_buffer[i] = (-1, -CONFIRM)
-            else:
-              self.event_buffer[i] = (-1, -CANCEL)
-          elif evid >= GENERIC_BUTTON:
-            if evid & 1 == self.oddeven:
-              self.event_buffer[i] = (-1, CONFIRM)
-            else:
-              self.event_buffer[i] = (-1, CANCEL)
+  def _can_skip_init_controllers(self):
+    ''' Because reiniting controllers is slow, this function implements OS dependent
+    shortcuts do determine if a reinit is necessary. Returns False if we know we
+    can skip the init.'''
+    
+    # At this time we only have a shortcut for Linux. We simply check common directories
+    # for the appearing and disappearing of device nodes.
+    skip = True
+    count = 0
+    for d in ("/dev/input", "/dev/input/by-id"):
+      try:
+        lst = os.listdir(d)
+        lst.sort()
+      except OSError:
+        lst = []
+
+      count += len(lst)
+
+      if d not in self._init_controllers_state or self._init_controllers_state[d] != lst:
+        self._init_controllers_state[d] = lst
+        skip = False
+
+    return skip and count > 0 # the count > 0 check tests if the directories did even exist
+    
 
 
 
@@ -1070,10 +1206,6 @@ if __name__ == "__main__":
   assert len(event_buffer) == 0
   valve.minus()
   assert len(event_buffer) == 1 and event_buffer.pop() == (0, -UP)
-  valve.minus()
-  assert len(event_buffer) == 0
-  valve.plus()
-  assert len(event_buffer) == 0
   valve.plus()
   assert len(event_buffer) == 1 and event_buffer.pop() == (0, UP)
   valve.reset() # make sure we don't mess up future tests that happen to use valves["P1_UP"]
@@ -1085,10 +1217,6 @@ if __name__ == "__main__":
   valve.plus()
   assert len(event_buffer) == 0
   valve.plus()
-  assert len(event_buffer) == 1 and event_buffer[0] == (-2, 42)
-  valve.plus()
-  assert len(event_buffer) == 1 and event_buffer[0] == (-2, 42)
-  valve.minus()
   assert len(event_buffer) == 1 and event_buffer[0] == (-2, 42)
   valve.minus()
   assert len(event_buffer) == 2 and event_buffer[0] == (-2, 42) and event_buffer[1] == (-2, -42)
@@ -1109,7 +1237,7 @@ if __name__ == "__main__":
   v4 = EventValve(77, 4, event_buffer, 0)
   fork1 = EventForkValve(0, [v1,v2,v4])
   fork2 = EventForkValve(-1, [v1,v2,v4])
-  fork3 = EventForkValve(-2, [v1,v2,v4])
+  fork3 = EventForkValve(-2, [v1,v4])
   fork3.replace_valve((77,4), v3, set())
   fork2.replace_valve((77,4), v3, set())
   fork1.replace_valve((77,4), v3, set())
@@ -1126,25 +1254,18 @@ if __name__ == "__main__":
   assert len(event_buffer) == 0
   fork2.plus()
   assert len(event_buffer) == 1 and event_buffer.pop() == (42, 2)
-  fork2.plus()
-  assert len(event_buffer) == 0
-  fork2.minus()
   fork3.plus()
   assert len(event_buffer) == 0
   fork3.plus()
   assert len(event_buffer) == 1 and event_buffer.pop() == (666, 1)
   fork1.minus()
-  assert len(event_buffer) == 1 and event_buffer.pop() == (666, -1)
+  assert len(event_buffer) == 2 and event_buffer.popleft() == (666, -1) and event_buffer.pop() == (42, -2)
   fork2.minus()
-  assert len(event_buffer) == 1 and event_buffer.pop() == (42, -2)
   fork3.minus()
   assert len(event_buffer) == 1 and event_buffer.pop() == (69, -3)
   assert len(event_buffer) == 0
   fork1.plus()
   fork2.plus()
-  fork2.plus()
-  fork3.plus()
-  fork3.plus()
   fork3.plus()
   event_buffer.clear()
   fork1.reset()
@@ -1162,9 +1283,6 @@ if __name__ == "__main__":
   assert len(event_buffer) == 0
   fork2.plus()
   assert len(event_buffer) == 1 and event_buffer.pop() == (42, 2)
-  fork2.plus()
-  assert len(event_buffer) == 0
-  fork2.minus()
   fork3.plus()
   assert len(event_buffer) == 0
   fork3.plus()
@@ -1356,8 +1474,69 @@ if __name__ == "__main__":
     'get_numhats': lambda self: 1,
     'get_numaxes': lambda self: 2,
   })()
-  ui.controllers = [joymock, joymock2]
-  ui.init_controllers_continued()
+  ui.controllers = [Controller(joymock), Controller(joymock2)]
+  
+  pb = EventPlumbing([],'0 = P1_LEFT\n1 = P2_LEFT\n2 = P3_LEFT\n3 = P4_LEFT\n4 = LEFT\n5 = P1_BUTTON_0\n6 = P2_BUTTON_0\n7 = P3_BUTTON_0\n8 = P4_BUTTON_0\n9 = P4_BUTTON_0')
+  pb = pb.clone()
+  ui.set_controller_plumbing(1, pb)
+  
+  pb.transpose_player(1)
+  assert repr(pb) == '''0 = P2_LEFT
+1 = P3_LEFT
+2 = P4_LEFT
+3 = P1_LEFT
+4 = LEFT
+5 = P2_BUTTON_0
+6 = P3_BUTTON_0
+7 = P4_BUTTON_0
+8 = P1_BUTTON_0
+9 = P1_BUTTON_0'''
+  pb.transpose_player(2)
+  assert repr(pb) == '''0 = P4_LEFT
+1 = P1_LEFT
+2 = P2_LEFT
+3 = P3_LEFT
+4 = LEFT
+5 = P4_BUTTON_0
+6 = P1_BUTTON_0
+7 = P2_BUTTON_0
+8 = P3_BUTTON_0
+9 = P3_BUTTON_0'''
+  pb.transpose_player(-3)
+  assert repr(pb) == '''0 = P1_LEFT
+1 = P2_LEFT
+2 = P3_LEFT
+3 = P4_LEFT
+4 = LEFT
+5 = P1_BUTTON_0
+6 = P2_BUTTON_0
+7 = P3_BUTTON_0
+8 = P4_BUTTON_0
+9 = P4_BUTTON_0'''
+
+  for vl in pb.container:
+    for valve in vl:
+      assert valve.closed[0] == valve.open[0]
+      assert valve.closed[1] == -valve.open[1]
+      if valve.open[1] >= GENERIC_BUTTON:
+        assert(valve.open[0] >> GENERIC_BUTTON_SHIFTER == 1)
+  
+  pb.plus(1)
+  pb.plus(4)
+  pb.menu_controls_enabled(False)
+  pb.minus(1)
+  pb.minus(4)
+  pb.menu_controls_enabled(True)
+  pb.plus(1)
+  pb.plus(4)
+  pb.minus(1)
+  pb.minus(4)
+  pb.menu_controls_enabled(False)
+  pb.plus(4)
+  pb.menu_controls_enabled(True)
+  pb.minus(4)
+  assert list(event_buffer) == [(1,LEFT),(-1,LEFT),(1,-LEFT),(1,LEFT),(-1,LEFT),(1,-LEFT),(-1,-LEFT),(-1,-LEFT)]
+  event_buffer.clear()
 
   ui.set_keyboard_plumbing(default_keyboard_plumbing.clone())
   ui.set_controller_plumbing(0, EventPlumbing({},'''
@@ -1377,11 +1556,10 @@ if __name__ == "__main__":
   ''').clone())
   ui.set_controller_plumbing(1, default_controller_plumbing.clone())
 
-  assert ui.name2controllers['Mock Stick'] == [0,1]
   assert len(event_buffer) == 0
-  assert len(ui.axis_state) == 2 and len(ui.axis_state[0]) == 6*1 + 3*2
-  assert ui.axis_state[0] == ui.axis_state[1]
-  assert ui.axis_state[0] == [False]*12
+  assert len(ui.controllers[0].axis_state) == 6*1 + 3*2
+  assert ui.controllers[0].axis_state == ui.controllers[1].axis_state
+  assert ui.controllers[0].axis_state == [False]*12
 
   ui.pump([pygame.event.Event(pygame.QUIT)])
   assert len(event_buffer) == 1 and event_buffer.pop() == (-1, QUIT)
@@ -1460,43 +1638,26 @@ if __name__ == "__main__":
 
   event_buffer.clear()
 
-  ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=1, button=9),
-           pygame.event.Event(pygame.JOYBUTTONUP, joy=1, button=9)])
-  ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=1, button=9),
-           pygame.event.Event(pygame.JOYBUTTONUP, joy=1, button=9),
-  ])
+  ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=1, button=5)])
+  ui.pump([pygame.event.Event(pygame.JOYBUTTONUP, joy=1, button=5)])
+  ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=1, button=5)])
+  ui.pump([pygame.event.Event(pygame.JOYBUTTONUP, joy=1, button=5)])
 
-  assert ui.generic_buttons[(0+1<<GENERIC_BUTTON_SHIFTER, GENERIC_BUTTON+9)] == [2,0,0,0,0]
-  ui._translate_generic_buttons()
-  assert list(event_buffer) == [(-1,CONFIRM),(-1,-CONFIRM),(-1,CONFIRM),(-1,-CONFIRM)]
+  assert ui.controllers[1].generic_buttons[GENERIC_BUTTON+5] == [2,0,0,0,0]
 
   event_buffer.clear()
-  event_buffer.append((0,GENERIC_BUTTON+2))
 
+  ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=1, button=2)])
+  ui.pump([pygame.event.Event(pygame.JOYBUTTONUP, joy=1, button=2)])
   ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=1, button=2),
-           pygame.event.Event(pygame.JOYBUTTONUP, joy=1, button=2)])
-  ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=1, button=2),
-           pygame.event.Event(pygame.JOYBUTTONUP, joy=1, button=2),
-           pygame.event.Event(pygame.JOYHATMOTION, joy=1, hat=0, value=(-1,0)),
-  ])
-
-  ui._translate_generic_buttons()
-  assert list(event_buffer) == [(-1,LEFT),(0,LEFT)]
-  assert ui.generic_buttons[(0+1<<GENERIC_BUTTON_SHIFTER, GENERIC_BUTTON+2)] == [2,1,0,0,0]
+           pygame.event.Event(pygame.JOYHATMOTION, joy=1, hat=0, value=(-1,0))])
+  ui.pump([pygame.event.Event(pygame.JOYBUTTONUP, joy=1, button=2)])
 
 
-  event_buffer.clear()
-  event_buffer.append((0,GENERIC_BUTTON+2))
-
-  ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=1, button=2),
-           pygame.event.Event(pygame.JOYBUTTONUP, joy=1, button=2)])
-  ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=1, button=2),
-           pygame.event.Event(pygame.JOYBUTTONUP, joy=1, button=2),
-  ])
-  ui._translate_generic_buttons()
-  assert list(event_buffer) == [(-1, CANCEL),(-1,CANCEL),(-1,-CANCEL),(-1,CANCEL),(-1,-CANCEL)]
-
-
+  assert ui.poll() == (-1,LEFT)
+  assert ui.poll() == (0,LEFT)
+  assert ui.poll() == (-1, PASS)
+  assert ui.controllers[1].generic_buttons[GENERIC_BUTTON+2] == [2,1,0,0,0]
 
   ui.pump([pygame.event.Event(pygame.JOYHATMOTION, joy=1, hat=0, value=(0,0))])
   event_buffer.clear()
@@ -1508,9 +1669,9 @@ if __name__ == "__main__":
            pygame.event.Event(pygame.JOYHATMOTION, joy=1, hat=0, value=(0,1)),
   ])
 
-  ui._translate_generic_buttons()
+  event_buffer.popleft() # remove the generic button event
   assert list(event_buffer) == [(-1,LEFT),(0,LEFT),(-1,-LEFT),(0,-LEFT),(-1,RIGHT),(0,RIGHT),(-1,-RIGHT),(0,-RIGHT),(-1,DOWN),(0,DOWN),(-1,UP),(0,UP),(-1,-DOWN),(0,-DOWN)]
-  assert ui.generic_buttons[(0+1<<GENERIC_BUTTON_SHIFTER, GENERIC_BUTTON+2)] == [5,2,1,1,1]
+  assert ui.controllers[1].generic_buttons[GENERIC_BUTTON+2] == [3,2,1,1,1]
 
   blueprint = '''
   A- = P1_LEFT
@@ -1536,8 +1697,7 @@ if __name__ == "__main__":
     'get_numhats': lambda self: 1,
     'get_numaxes': lambda self: 0,
   })()
-  ui.controllers = [joymock, joymock2]
-  ui.init_controllers_continued()
+  ui.controllers = [Controller(joymock), Controller(joymock2)]
   ui.oddeven_learned = True
   ui.oddeven = 1
 
@@ -1549,36 +1709,26 @@ if __name__ == "__main__":
     ui.pump([pygame.event.Event(pygame.JOYHATMOTION, joy=joy, hat=0, value=(0,0))])
     for n in range(2):
       for butt in range(6):
-        ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=joy, button=butt),
-                 pygame.event.Event(pygame.JOYBUTTONUP, joy=joy, button=butt)])
+        ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=joy, button=butt)])
+        ui.pump([pygame.event.Event(pygame.JOYBUTTONUP, joy=joy, button=butt)])
 
   event_buffer.clear()
   directions = [[(-1,0),(1,0),(0,-1),(0,1)],[(1,0),(0,-1),(0,1),(-1,0)]]
 
   for i in range(4*MIN_LEARN_GENERIC_BUTTON_COUNT): # 4*... should be enough to guarantee a result
-    if len(ui.generic_buttons) == 0: break
+    if len(ui.controllers[0].generic_buttons)+len(ui.controllers[1].generic_buttons) == 0: break
 
     for butt in range(6):
       for joy in range(2):
         if butt >= 4:
-          if joy == 0:
-            ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=joy, button=butt),
-                   pygame.event.Event(pygame.JOYBUTTONUP, joy=joy, button=butt)])
-          else:
-            ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=joy, button=butt)])
-            ui.pump([pygame.event.Event(pygame.JOYBUTTONUP, joy=joy, button=butt)])
+          ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=joy, button=butt)])
+          ui.pump([pygame.event.Event(pygame.JOYBUTTONUP, joy=joy, button=butt)])
         else:
-          if joy == 0:
-            ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=joy, button=butt),
-                   pygame.event.Event(pygame.JOYBUTTONUP, joy=joy, button=butt),
-                   pygame.event.Event(pygame.JOYHATMOTION, joy=joy, hat=0, value=directions[joy][butt]),
-                   pygame.event.Event(pygame.JOYHATMOTION, joy=joy, hat=0, value=(0,0)),
-                   ])
-          else:
-            ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=joy, button=butt),
-                     pygame.event.Event(pygame.JOYHATMOTION, joy=joy, hat=0, value=directions[joy][butt])])
-            ui.pump([pygame.event.Event(pygame.JOYBUTTONUP, joy=joy, button=butt),
-                     pygame.event.Event(pygame.JOYHATMOTION, joy=joy, hat=0, value=(0,0))])
+          ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=joy, button=butt),
+                   pygame.event.Event(pygame.JOYHATMOTION, joy=joy, hat=0, value=directions[joy][butt])])
+          ui.pump([pygame.event.Event(pygame.JOYBUTTONUP, joy=joy, button=butt),
+                   pygame.event.Event(pygame.JOYHATMOTION, joy=joy, hat=0, value=(0,0))])
+            
   else:
     raise AssertionError("Learning did not work")
 
@@ -1619,60 +1769,45 @@ if __name__ == "__main__":
   assert [ui.poll(),ui.poll()] == [(0,LEFT),(0,-LEFT)]
   ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=0, button=4),
            pygame.event.Event(pygame.JOYBUTTONUP, joy=0, button=4)])
-  assert [ui.poll(),ui.poll()] == [(-1,CANCEL),(-1,-CANCEL)]
+  assert [ui.poll(),ui.poll()] == [(-1,PASS),(-1,PASS)]
   ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=1, button=4),
            pygame.event.Event(pygame.JOYBUTTONUP, joy=1, button=4)])
-  assert [ui.poll(),ui.poll()] == [(-1,CANCEL),(-1,-CANCEL)]
+  assert [ui.poll(),ui.poll()] == [(-1,PASS),(-1,PASS)]
   ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=0, button=5),
            pygame.event.Event(pygame.JOYBUTTONUP, joy=0, button=5)])
-  assert [ui.poll(),ui.poll()] == [(-1,CONFIRM),(-1,-CONFIRM)]
+  assert [ui.poll(),ui.poll()] == [(-1,PASS),(-1,PASS)]
   ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=1, button=5),
            pygame.event.Event(pygame.JOYBUTTONUP, joy=1, button=5)])
-  assert [ui.poll(),ui.poll()] == [(-1,CONFIRM),(-1,-CONFIRM)]
+  assert [ui.poll(),ui.poll()] == [(-1,PASS),(-1,PASS)]
 
   assert len(event_buffer) == 0
 
-  assert repr(ui.controller_plumbing[0]) == '''
+  assert repr(ui.controllers[0].plumbing) == '''
 0 = P1_LEFT
 1 = P1_RIGHT
 2 = P1_DOWN
 3 = P1_UP
-4 = CANCEL
-5 = CONFIRM
+4 = !P1_BUTTON_4
+5 = !P1_BUTTON_5
 A- = P1_LEFT
 A+ = P1_RIGHT
 B- = P1_UP
 B+ = P1_DOWN
   '''.strip()
 
-  assert repr(ui.controller_plumbing[1]) == '''
+  assert repr(ui.controllers[1].plumbing) == '''
 0 = P1_RIGHT
 1 = P1_DOWN
 2 = P1_UP
 3 = P1_LEFT
-4 = CANCEL
-5 = CONFIRM
+4 = !P1_BUTTON_4
+5 = !P1_BUTTON_5
 A- = P1_LEFT
 A+ = P1_RIGHT
 B- = P1_UP
 B+ = P1_DOWN
   '''.strip()
 
-  ui.repeat_output()
-  assert len(event_buffer) == 0
-
-  ui.pump([pygame.event.Event(pygame.JOYBUTTONDOWN, joy=0, button=5),
-           pygame.event.Event(pygame.JOYBUTTONDOWN, joy=1, button=5)])
-
-  assert [ui.poll(),ui.poll()] == [(-1,CONFIRM),(-1,CONFIRM)]
-  assert len(event_buffer) == 0
-  ui.repeat_output()
-  assert len(event_buffer) == 0 # CONFIRM is not repeatable
-
-  ui.pump([pygame.event.Event(pygame.JOYBUTTONUP, joy=0, button=5),
-           pygame.event.Event(pygame.JOYBUTTONUP, joy=1, button=5)])
-
-  assert [ui.poll(),ui.poll()] == [(-1,-CONFIRM),(-1,-CONFIRM)]
   ui.repeat_output()
   assert len(event_buffer) == 0
 
@@ -1728,16 +1863,18 @@ B+ = P1_DOWN
 
   event_buffer.clear()
 
-  assert repr(ui.controller_plumbing[0]).strip() == '''
+  assert repr(ui.controllers[0].plumbing).strip() == '''
 2 = P1_LEFT
 3 4 = P1_LEFT
-5 = CONFIRM
-7 = CONFIRM
+5 = !P1_BUTTON_1
+5 = !P1_BUTTON_3
+7 = !P1_BUTTON_3
+7 = !P1_BUTTON_1
 8 9 = P1_LEFT
 0 A- = P1_LEFT
 A- = P1_LEFT
 '''.strip()
-  assert ui.count_valves(0) == 2
+  assert ui.count_valves(0) == 3
 
 
   ui.pump([pygame.event.Event(pygame.JOYHATMOTION, joy=0, hat=0, value=(-1,0))])
@@ -1748,10 +1885,8 @@ A- = P1_LEFT
 
 #  ui.controller_plumbing[0].visit(DebugValves())
 
-  ui.init_controllers()
+  ui.force_init_controllers()
   ui.clear()
-
-
 
   while True:
     pid, evid = ui.poll()
@@ -1760,10 +1895,14 @@ A- = P1_LEFT
     elif evid == QUIT:
       raise SystemExit
     elif evid == SCREENSHOT:
+      print("[Events history]")
+      for lst in ui.pygame_events:
+        for ev in lst:
+          print(ev)
       for joy in range(len(ui.controllers)):
         print("[Controller %d]" % joy)
-        print(repr(ui.controller_plumbing[joy]))
-        ui.controller_plumbing[joy].visit(DebugValves())
+        print(repr(ui.controllers[joy].plumbing))
+        ui.controllers[joy].plumbing.visit(DebugValves())
         print("Total number of valve objects: %d" % ui.count_valves(joy))
     else:
       dir = evid
