@@ -1559,8 +1559,8 @@ msgid "Joystick %d initialized: %d axes, %d buttons."
 msgstr "S'ha inicialitzat el control %d: %d eixos, %d botons."
 
 #: pad.py:157
-msgid "W: Unable to load input configuration file."
-msgstr "A: no s'ha pogut carregar el fitxer de configuració."
+msgid "W: Unable to load input configuration file %s"
+msgstr "A: no s'ha pogut carregar el fitxer de configuració %s"
 
 #: pad.py:161
 msgid "Loaded input configuration."

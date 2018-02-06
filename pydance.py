@@ -209,8 +209,6 @@ def main():
   mainconfig.update(game_config)
   mainconfig.update(player_config)
   mainconfig.write(os.path.join(rc_path, "pydance.cfg"))
-  # FIXME -- is this option a good idea?
-  if mainconfig["saveinput"]: pad.write(os.path.join(rc_path, "input.cfg"))
   records.write()
 
 if __name__ == '__main__': main()

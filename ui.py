@@ -345,11 +345,13 @@ class PlumbingStringer(object):
     for valve in outputs:
       pid,evid = valve.open
       if pid > 0: pid = pid & PLAYERS_MASK
-      if valve.enabled:
-        output_strings.append(valvenames[(pid,evid)])
-      else:
-        output_strings.append('!'+valvenames[(pid,evid)])
-    self.lines.append("%s = %s" % (" ".join(input_strings), " ".join(output_strings)))
+      if evid != PASS:
+        if valve.enabled:
+          output_strings.append(valvenames[(pid,evid)])
+        else:
+          output_strings.append('!'+valvenames[(pid,evid)])
+    if len(output_strings) > 0 and len(input_strings) > 0:
+      self.lines.append("%s = %s" % (" ".join(input_strings), " ".join(output_strings)))
 
 class EventPlumbing(object):
   def __init__(self, container, blueprint):
@@ -396,7 +398,21 @@ class EventPlumbing(object):
       does not matter which form you use.
     '''
 
+    # This is set based on the number of buttons occuring and is used when converting an
+    # EventPlumbing to text. If is_keyboard == True, virtual button to axis name conversion is
+    # disabled.
     self.is_keyboard = False
+
+    # The name of the file to save changes to this plumbing in.
+    self.filename = None
+
+    # First line to output when saving to self.filename. Usually "[Controller Name]".
+    self.header = ""
+
+    # True => If this plumbing contains menuing events (e.g. CANCEL), disable them
+    # when clone() is used to create a copy if this plumbing.
+    self.menuing_disabled = False
+
     self.container = container
     for line in blueprint.splitlines():
       line = line.strip().upper()
@@ -430,6 +446,12 @@ class EventPlumbing(object):
           inputset.add(MAX_BUTTONS+i)
 
       for oword in output.split():
+        if oword[0] == "!":
+          oword = oword[1:]
+          # At this time we support only disabling of menu commands, so if we see any disabled
+          # output even we simply assume that this is what's happening.
+          self.menuing_disabled = True
+
         self.add(inputset, oword)
 
   def add(self, inputs, valvename):
@@ -534,9 +556,10 @@ class EventPlumbing(object):
   def transpose_player(self, adder):
     '''Adds adder to all EventValves' pid >=0 , wrapping around at MAX_PLAYERS.'''
     self.visit(PIDTransposer(adder))
-  
+
   def menu_controls_enabled(self, onoff):
     ''' Enables (onoff=True) or disables (onoff=False) all EventValves with pid < 0. '''
+    self.menuing_disabled = True
     self.visit(MenuControlsEnabled(onoff))
 
   def clone(self):
@@ -545,7 +568,21 @@ class EventPlumbing(object):
     output valves that have been taken directly from ui.valves by the constructor.
     It is necessary to clone() an EventPlumbing before using its plus()/minus().
     '''
-    return deepcopy(self)
+    c = deepcopy(self)
+    if self.menuing_disabled: c.menu_controls_enabled(False)
+    return c
+
+  def save_to_disk(self):
+    '''If this plumbing has a filename set and mainconfig["saveinput"], this plumbing is stored to disk.'''
+    if self.filename is not None and mainconfig["saveinput"]:
+      try:
+        with open(os.path.join(input_d_path, self.filename), "w") as f:
+          f.write(self.header)
+          f.write("\n")
+          f.write(repr(self))
+      except:
+        print _("W: Unable to write input configuration file %s") % (self.filename,)
+        print sys.exc_info()[1]
 
   def visit(self, visitor):
     '''
@@ -692,6 +729,113 @@ B+ = DOWN P1_DOWN
 31 = OPTIONS
 ''')
 
+# Maps a pygame.joystick.Joystick.get_name() to a list L of EventPlumbing objects, where
+# L[i] is the plumbing to be used for the i-th controller of that name attached to the
+# system. Some L[i] may be None. In that case the plumbing will be derived through transposition.
+plumbing_templates = {}
+
+def read_plumbing_templates():
+  if os.path.exists(input_d_path):
+    try:
+      lst = os.listdir(input_d_path)
+      lst.sort()
+    except OSError:
+      lst = []
+
+    for fn in lst:
+      if fn.endswith(".cfg"):
+        try:
+          inp = open(os.path.join(input_d_path,fn), "rU").read(-1)
+          start = inp.find("[")
+          if start < 0: raise SyntaxError(_("'[' not found"))
+          end = inp.find("]", start)
+          if end < 0: raise SyntaxError(_("']' not found"))
+          controller_name = inp[start+1:end].strip()
+          hash = controller_name.rfind("#")
+          controller_index = 0
+          if hash > 0 and controller_name[hash+1:].isdigit():
+            controller_index = int(controller_name[hash+1:])
+            controller_name = controller_name[:hash].strip()
+
+          pb = EventPlumbing([], inp[end+1:])
+          print (_("Loaded %s") % (fn,))
+          pb.filename = fn
+
+          if controller_index > 0:
+            pb.header = "[%s #%d]" % (controller_name, controller_index)
+          else:
+            pb.header = "[%s]" % (controller_name,)
+
+          pbtlst = plumbing_templates.setdefault(controller_name,[])
+          while controller_index >= len(pbtlst):
+            pbtlst.append(None)
+
+          pbtlst[controller_index] = pb
+
+        except:
+          print _("W: Unable to load input configuration file %s") % (fn,)
+          print sys.exc_info()[1]
+
+def get_plumbing(name, idx):
+  if name in plumbing_templates:
+    lst = plumbing_templates[name]
+    i = idx
+    while i > 0 and (i >= len(lst) or lst[i] is None): i -= 1
+    if lst[i] is None: # implies i == 0
+      i = idx
+      while lst[i] is None: i += 1
+
+    pb = lst[i].clone()
+
+    if i != idx:
+      print(_("Transposing %s to get mapping for %s #%d") % (pb.header, name, idx))
+      pb.transpose_player(idx - i)
+      pb.menu_controls_enabled(False)  # don't want player 2 to control menu
+
+      assert pb.filename.endswith(".cfg")
+      pb.filename = pb.filename[:-4]
+      underscore = pb.filename.rfind("_")
+      if underscore >= 0:
+        pb.filename = pb.filename[:underscore]
+      if idx != 0:
+        pb.filename += "_%d" % (idx,)
+      pb.filename += ".cfg"
+
+      if pb.filename[0:2].isdigit() and pb.filename[2] == "-":
+        pb.filename = pb.filename[3:]
+
+      pb.filename = "10-" + pb.filename
+
+      hash = pb.header.rfind("#")
+      if hash < 0:
+        hash = len(pb.header)-1 # point to "]"
+
+      pb.header = pb.header[:hash] + (" #%d]" % (idx,) )
+    else:
+      print(_("Using mapping for %s #%d") % (name, idx))
+
+  else:
+    if name == "keyboard":
+      pb = default_keyboard_plumbing.clone()
+      pb.filename = "10-keyboard.cfg"
+      pb.header = "[keyboard]"
+
+    else:
+      print(_("Using default mapping for %s #%d") % (name, idx))
+      pb = default_controller_plumbing.clone()
+      pb.filename = "10-" + "".join(ch.lower() for ch in name if ch.isalnum())
+      pb.header = "[" + name
+      if idx > 0:
+        pb.filename += "_%d" % (idx,)
+        pb.header += " #%d" % (idx,)
+        pb.transpose_player(idx)
+        pb.menu_controls_enabled(False)  # don't want player 2 to control menu
+
+      pb.filename += ".cfg"
+      pb.header += "]"
+
+  return pb
+
 class GenericButtonsFixup(object):
   '''
   Embeds joy << GENERIC_BUTTON_SHIFTER in the pid of every EventValve's output event that refers to a
@@ -792,14 +936,14 @@ class Controller(object):
     #   up is the number of times (pid, UP) was seen at the same time in the event_buffer
     #   ditto for left,right,down
     self.generic_buttons = {}
-    
+
 
   def pressed(self, button):
     if not self.button_state[button]:
       self.button_state[button] = True
       self.plumbing.plus(button)
       self.num_pressed += 1
-  
+
   def released(self, button):
     if self.button_state[button]:
       self.button_state[button] = False
@@ -826,14 +970,14 @@ class UI(object):
     self.pygame_events = deque()
     # sum of the lengths of all lists in pygame_events.
     self.pygame_events_count = 0
-    
+
     # stores tuples (pid, evid) or (pid, -evid) for button presses/releases.
     # Used as FIFO. EventValves append data. poll() and poll_dance() remove it.
     self.event_buffer = ebuf
 
     # this logs the last time an output even was produced in pump()
     self.last_valve_change_time = pygame.time.get_ticks()
-    
+
     # this logs the last time, a non-empty event list was received from pygame
     self.last_pygame_events_time = pygame.time.get_ticks()
 
@@ -844,11 +988,11 @@ class UI(object):
     self.key_state = [False] * 512
 
     # the EventPlumbing used for keyboard inputs.
-    self.keyboard_plumbing = default_keyboard_plumbing.clone()
+    self.keyboard_plumbing = get_plumbing("keyboard", 0)
 
     # list of Controller objects. Array index matches pygame's joystick id.
     self.controllers = []
-    
+
     # controller_names[i] is controllers[i].pygame.get_name()
     self.controller_names = []
 
@@ -870,7 +1014,7 @@ class UI(object):
     self.controller_names = []
     self._init_controllers_state = {}
     self.init_controllers()
-  
+
   def init_controllers(self):
     if self._can_skip_init_controllers():
       return
@@ -890,7 +1034,7 @@ class UI(object):
         self.pull_out_sound.play()
       else:
         self.plug_in_sound.play()
-        
+
       controllers = []
       i = 0
       while i < len(controller_names):
@@ -924,15 +1068,12 @@ class UI(object):
           k += 1
         else: # if the previous while did not find a corresponding old entry => create new one
           controllers.append(Controller(sticks[i]))
-          controllers[joy].plumbing = default_controller_plumbing.clone()
-          controllers[joy].plumbing.transpose_player(idx)
-          if idx > 0:
-            controllers[joy].plumbing.menu_controls_enabled(False)  # don't want player 2 to control menu
+          controllers[joy].plumbing = get_plumbing(name, idx)
 
         controllers[joy].plumbing.visit(GenericButtonsFixup(joy))
         i += 1
       # end while
-      
+
       self.controllers = controllers
       self.controller_names = controller_names
 
@@ -963,7 +1104,7 @@ class UI(object):
     During dancing, the special function poll_dance() is used instead of this one.
     '''
     ticks = pygame.time.get_ticks()
-    
+
     if len(self.event_buffer) == 0:
       events = pygame.event.get()
       if len(events) > 0:
@@ -1049,7 +1190,7 @@ class UI(object):
     self.pygame_events_count += len(events)
     while self.pygame_events_count > MAX_KEEP_PYGAME_EVENTS:
       self.pygame_events_count -= len(self.pygame_events.popleft())
-    
+
     num_events = len(self.event_buffer)
     for event in events:
       if event.type == pygame.QUIT:
@@ -1139,9 +1280,7 @@ class UI(object):
             indep += 1
 
         if indep == 4:
-          self.learn_sound.play()
-          self.controllers[joy].plumbing.visit(DisableEvent(pid + (joy << GENERIC_BUTTON_SHIFTER), evid))
-          del self.controllers[joy].generic_buttons[evid]
+          self._learn_generic_button(joy, pid, evid, -1, PASS)
 
   def _learn_generic_button(self, joy, oldpid, oldevid, pid, evid):
     self.learn_sound.play()
@@ -1152,12 +1291,13 @@ class UI(object):
     else:
       self.controllers[joy].plumbing.visit(ReplaceEvent((oldpid + (joy << GENERIC_BUTTON_SHIFTER), oldevid), pid, evid))
     del self.controllers[joy].generic_buttons[oldevid]
+    self.controllers[joy].plumbing.save_to_disk()
 
   def _can_skip_init_controllers(self):
     ''' Because reiniting controllers is slow, this function implements OS dependent
     shortcuts do determine if a reinit is necessary. Returns False if we know we
     can skip the init.'''
-    
+
     # At this time we only have a shortcut for Linux. We simply check common directories
     # for the appearing and disappearing of device nodes.
     skip = True
@@ -1176,13 +1316,10 @@ class UI(object):
         skip = False
 
     return skip and count > 0 # the count > 0 check tests if the directories did even exist
-    
 
 
-
+read_plumbing_templates()
 ui = UI()
-
-
 
 
 ####################################################################################################
@@ -1475,11 +1612,11 @@ if __name__ == "__main__":
     'get_numaxes': lambda self: 2,
   })()
   ui.controllers = [Controller(joymock), Controller(joymock2)]
-  
+
   pb = EventPlumbing([],'0 = P1_LEFT\n1 = P2_LEFT\n2 = P3_LEFT\n3 = P4_LEFT\n4 = LEFT\n5 = P1_BUTTON_0\n6 = P2_BUTTON_0\n7 = P3_BUTTON_0\n8 = P4_BUTTON_0\n9 = P4_BUTTON_0')
   pb = pb.clone()
   ui.set_controller_plumbing(1, pb)
-  
+
   pb.transpose_player(1)
   assert repr(pb) == '''0 = P2_LEFT
 1 = P3_LEFT
@@ -1520,7 +1657,7 @@ if __name__ == "__main__":
       assert valve.closed[1] == -valve.open[1]
       if valve.open[1] >= GENERIC_BUTTON:
         assert(valve.open[0] >> GENERIC_BUTTON_SHIFTER == 1)
-  
+
   pb.plus(1)
   pb.plus(4)
   pb.menu_controls_enabled(False)
@@ -1728,7 +1865,7 @@ if __name__ == "__main__":
                    pygame.event.Event(pygame.JOYHATMOTION, joy=joy, hat=0, value=directions[joy][butt])])
           ui.pump([pygame.event.Event(pygame.JOYBUTTONUP, joy=joy, button=butt),
                    pygame.event.Event(pygame.JOYHATMOTION, joy=joy, hat=0, value=(0,0))])
-            
+
   else:
     raise AssertionError("Learning did not work")
 
@@ -1787,8 +1924,6 @@ if __name__ == "__main__":
 1 = P1_RIGHT
 2 = P1_DOWN
 3 = P1_UP
-4 = !P1_BUTTON_4
-5 = !P1_BUTTON_5
 A- = P1_LEFT
 A+ = P1_RIGHT
 B- = P1_UP
@@ -1800,8 +1935,6 @@ B+ = P1_DOWN
 1 = P1_DOWN
 2 = P1_UP
 3 = P1_LEFT
-4 = !P1_BUTTON_4
-5 = !P1_BUTTON_5
 A- = P1_LEFT
 A+ = P1_RIGHT
 B- = P1_UP
@@ -1866,15 +1999,11 @@ B+ = P1_DOWN
   assert repr(ui.controllers[0].plumbing).strip() == '''
 2 = P1_LEFT
 3 4 = P1_LEFT
-5 = !P1_BUTTON_1
-5 = !P1_BUTTON_3
-7 = !P1_BUTTON_3
-7 = !P1_BUTTON_1
 8 9 = P1_LEFT
 0 A- = P1_LEFT
 A- = P1_LEFT
 '''.strip()
-  assert ui.count_valves(0) == 3
+  assert ui.count_valves(0) == 1+1 # the +1 is for the -(1,PASS) valve that is not output
 
 
   ui.pump([pygame.event.Event(pygame.JOYHATMOTION, joy=0, hat=0, value=(-1,0))])
@@ -1882,11 +2011,59 @@ A- = P1_LEFT
   ui.pump([pygame.event.Event(pygame.JOYHATMOTION, joy=0, hat=0, value=(0,0))])
   assert ui.poll() == (0, -LEFT)
 
+  pb = EventPlumbing([],'0 = P1_LEFT')
+  pb.header = "[Biggus Stickus]"
+  pb.filename = "50-biggus_2.cfg"
+  
+  plumbing_templates = {"Biggus Stickus":[None,None,pb]}
+  
+  pb = get_plumbing("keyboard",0)
+  assert pb.filename == "10-keyboard.cfg"
+  assert pb.header == "[keyboard]"
+  assert pb.is_keyboard
+  assert pb.menuing_disabled == False
+
+  pb = get_plumbing("Big Stick",0)
+  assert pb.filename == "10-bigstick.cfg"
+  assert pb.header == "[Big Stick]"
+  assert not pb.is_keyboard
+  assert pb.menuing_disabled == False
+  assert "P1_" in repr(pb) and not "P2_" in repr(pb)
+
+  pb = get_plumbing("Big Stick",1)
+  assert pb.filename == "10-bigstick_1.cfg"
+  assert pb.header == "[Big Stick #1]"
+  assert not pb.is_keyboard
+  assert pb.menuing_disabled == True
+  assert "P2_" in repr(pb) and not "P1_" in repr(pb)
+
+  pb = get_plumbing("Biggus Stickus",2)
+  assert pb.filename == "50-biggus_2.cfg"
+  assert pb.header == "[Biggus Stickus]"
+  assert not pb.is_keyboard
+  assert pb.menuing_disabled == False
+  assert "P1_" in repr(pb) and not "P2_" in repr(pb)
+  
+  pb = get_plumbing("Biggus Stickus",3)
+  assert pb.filename == "10-biggus_3.cfg"
+  assert pb.header == "[Biggus Stickus #3]"
+  assert not pb.is_keyboard
+  assert pb.menuing_disabled == True
+  assert "P2_" in repr(pb) and not "P1_" in repr(pb)
+  
+  pb = get_plumbing("Biggus Stickus",1)
+  assert pb.filename == "10-biggus_1.cfg"
+  assert pb.header == "[Biggus Stickus #1]"
+  assert not pb.is_keyboard
+  assert pb.menuing_disabled == True
+  assert "P4_" in repr(pb) and not "P1_" in repr(pb)
 
 #  ui.controller_plumbing[0].visit(DebugValves())
 
+  read_plumbing_templates()
   ui.force_init_controllers()
   ui.clear()
+  
 
   while True:
     pid, evid = ui.poll()

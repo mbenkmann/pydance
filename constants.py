@@ -58,6 +58,9 @@ if not os.path.isdir(rc_path): os.mkdir(rc_path)
 
 search_paths = (pydance_path, rc_path)
 
+input_d_path = os.path.join(rc_path, "input.d")
+if not os.path.isdir(input_d_path): os.mkdir(input_d_path)
+
 if not sys.stdout.isatty():
   sys.stdout = file(os.path.join(rc_path, "pydance.log"), "w")
   sys.stderr = sys.stdout
