@@ -1,0 +1,1966 @@
+# translation of pydance.po to Slovak.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the pydance package.
+# Jose Riha <jose 1711 gmail com>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-11-11 15:23+0100\n"
+"PO-Revision-Date: 2020-11-12 17:39+0100\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.1\n"
+"Last-Translator: Jose Riha <jose1711@gmail.com>\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n>=2 && n<=4 ? 1 : 2);\n"
+"Language: sk_SK\n"
+
+#: announcer.py:33
+#, python-format
+msgid "E: Cannot load announcer theme '%s'."
+msgstr "CH: Nepodarilo sa nahrať motív komentátora '%s'."
+
+#: colors.py:4 constants.py:188 constants.py:189 constants.py:190
+#: constants.py:191 constants.py:192 constants.py:193 constants.py:195
+msgid "red"
+msgstr "červená"
+
+#: colors.py:5
+msgid "pink"
+msgstr "ružová"
+
+#: colors.py:6
+msgid "yellow"
+msgstr "žltá"
+
+#: colors.py:7 constants.py:196 constants.py:197 constants.py:198
+msgid "green"
+msgstr "zelená"
+
+#: colors.py:8
+msgid "cyan"
+msgstr "azúrová"
+
+#: colors.py:9 constants.py:194
+msgid "blue"
+msgstr "modrá"
+
+#: colors.py:10 constants.py:199 constants.py:200 constants.py:201
+#: constants.py:202 constants.py:203 constants.py:204
+msgid "purple"
+msgstr "purpurová"
+
+#: colors.py:11 constants.py:185 constants.py:186 constants.py:187
+msgid "orange"
+msgstr "oranžová"
+
+#: colors.py:12
+msgid "aqua"
+msgstr "zeleno-modrá"
+
+#: colors.py:13 colors.py:19 constants.py:184
+msgid "white"
+msgstr "biela"
+
+#: colors.py:14 colors.py:20
+msgid "black"
+msgstr "čierna"
+
+#: colors.py:15 scores.py:37
+msgid "gray"
+msgstr "sivá"
+
+#: combos.py:121 gameselect.py:26 gameselect.py:75 gameselect.py:84
+#: gameselect.py:160 lifebars.py:219 options.py:44 options.py:54 options.py:64
+#: options.py:74 options.py:80 options.py:87 options.py:105 options.py:147
+msgid "Normal"
+msgstr "Normálny"
+
+#: combos.py:121
+msgid "Greats or better increase a combo"
+msgstr "Skvelé alebo lepšie kroky sa započítavajú do komba"
+
+#: combos.py:122
+msgid "Oni-style"
+msgstr "Štýl Oni"
+
+#: combos.py:122
+msgid "Greats don't increase a combo, but also don't break it"
+msgstr "Skvelé sa nezapočítavajú do komba, ale neprerušia ho"
+
+#: combos.py:123
+msgid "Pump It Up"
+msgstr "Pump It Up"
+
+#: combos.py:123
+msgid "Okays or better increase a combo"
+msgstr "Dobré alebo lepšie sa započítavajú do komba"
+
+#: courseselect.py:39 songselect.py:52
+msgid "Up / Down: Change song selection"
+msgstr "Hore / Dole: Zmena výberu skladby"
+
+#: courseselect.py:40 songselect.py:53
+msgid "Left / Right: Change difficulty setting"
+msgstr "Vľavo / Vpravo: Zmena nastavenia obtiažnosti"
+
+#: courseselect.py:41
+msgid "Enter / Up Right: Open a folder or start a course"
+msgstr "Enter / Vpravo hore: Otvoriť priečinok / začať kurz"
+
+#: courseselect.py:42
+msgid "Escape / Up Left: Close a folder or exit"
+msgstr "Esc / Vľavo hore: Zavrieť priečinok alebo ukončiť"
+
+#: courseselect.py:43
+msgid "Tab / Select: Go to a random course"
+msgstr "Tabulátor / Select: Prejsť na náhodný kurz"
+
+#: courseselect.py:44
+msgid "Start: Switch to Options screen"
+msgstr "Start: Prejsť na obrazovku s možnosťami"
+
+#: courseselect.py:45 songselect.py:58
+msgid "F11: Toggle fullscreen - S: Change the sort mode"
+msgstr "F11: Prepnúť do okna/na celú obrazovky - S: Zmena režimu triedenia"
+
+#: courseselect.py:71 courses.py:85 courses.py:234 courses.py:268
+msgid "BEST"
+msgstr "REKORDY"
+
+#: courseselect.py:74
+#, python-format
+msgid " (Best #%d)"
+msgstr " (Rekord #%d)"
+
+#: courseselect.py:77
+msgid "Player's Best Unavailable"
+msgstr "Osobný rekord hráča nie je dostupný"
+
+#: courseselect.py:78 courseselect.py:87 courseselect.py:96 courseselect.py:106
+msgid "(You need to play more songs!)"
+msgstr "(Musíte odohrať viac skladieb!)"
+
+#: courseselect.py:80 courses.py:91 courses.py:235 courses.py:269
+#: courses.py:302 courses.py:303
+msgid "WORST"
+msgstr "NAJHORŠIE SKÓRE"
+
+#: courseselect.py:83
+#, python-format
+msgid " (Worst #%d)"
+msgstr " (Najhoršie #%d)"
+
+#: courseselect.py:86
+msgid "Player's Worst Unavailable"
+msgstr "Najhoršie skóre hráča nie sú dostupné"
+
+#: courseselect.py:89 courses.py:97 courses.py:270
+msgid "LIKES"
+msgstr "PÁČI SA"
+
+#: courseselect.py:95
+msgid "Player's Likes Unavailable"
+msgstr "Obľúbené skladby hráča nedostupné"
+
+#: courseselect.py:98 courses.py:103 courses.py:271
+msgid "DISLIKES"
+msgstr "NEPÁČI SA"
+
+#: courseselect.py:102
+#, python-format
+msgid " (Dislikes #%d)"
+msgstr " (Nepáči sa #%d)"
+
+#: courseselect.py:105
+msgid "Player's Dislikes Unavailable"
+msgstr "Neobľúbené skladby hráča nedostupné"
+
+#: courseselect.py:215
+msgid "All Courses"
+msgstr "Všetky kurzy"
+
+#: courseselect.py:370 songselect.py:512
+#, python-format
+msgid "Sort by %s"
+msgstr "Triediť podľa %s"
+
+#: courses.py:23
+msgid "A Course"
+msgstr "Kurz"
+
+#: courses.py:119
+msgid " was not found."
+msgstr " nebol nájdený."
+
+#: courses.py:130
+msgid "No valid songs were found."
+msgstr "Neboli nájdené platné skladby."
+
+#: courses.py:158
+#, python-format
+msgid "Player's %s #%d"
+msgstr "Hráčov %s #%d"
+
+#: courses.py:159
+msgid "was not found."
+msgstr "nebol nájdený."
+
+#: courses.py:168 fileparsers.py:811
+msgid " is an unsupported format."
+msgstr " nie je v podporovanom formáte."
+
+#: courses.py:261 courses.py:279
+msgid "(Easy)"
+msgstr "(Ľahké)"
+
+#: courses.py:262 courses.py:280
+msgid "(Normal)"
+msgstr "(Normálne)"
+
+#: courses.py:264 courses.py:282
+msgid "(Hard)"
+msgstr "(Ťažké)"
+
+#: courses.py:265 courses.py:283
+msgid "(Expert)"
+msgstr "(Expert)"
+
+#: courses.py:268
+msgid "Best"
+msgstr "Rekord"
+
+#: courses.py:269
+msgid "Worst"
+msgstr "Najhoršie skóre"
+
+#: courses.py:270
+msgid "Likes"
+msgstr "Páči sa"
+
+#: courses.py:271
+msgid "Dislikes"
+msgstr "Nepáči sa"
+
+#: courses.py:275 courses.py:306 courses.py:308
+msgid "Player's Picks"
+msgstr "Výber používateľa"
+
+#: courses.py:285
+#, python-format
+msgid "Random %d %s"
+msgstr "Náhodné %d %s"
+
+#: courses.py:288 courses.py:294
+msgid "random.choose(songs)"
+msgstr "random.choose(songs)"
+
+#: courses.py:291
+#, python-format
+msgid "All Random %d"
+msgstr "Všetky náhodné %d"
+
+#: courses.py:305
+msgid "Primal Fear (Easy)"
+msgstr "Počiatočný strach (Ľahké)"
+
+#: courses.py:307
+msgid "Primal Fear (Hard)"
+msgstr "Počiatočný strach (Ťažké)"
+
+#: dance.py:152
+msgid "ready.png"
+msgstr "ready.png"
+
+#: dance.py:163
+msgid "go.png"
+msgstr "go.png"
+
+#: dance.py:226
+msgid "Next Song"
+msgstr "Ďalšia skladba"
+
+#: dance.py:227
+msgid "Confirm: Begin   Cancel: Stop"
+msgstr "Potvrdiť: Začať   Zrušiť: Zastaviť"
+
+#: dance.py:228
+msgid "Start: Change Options"
+msgstr "Start: Zmena možností"
+
+#: dance.py:265 endless.py:38
+#, python-format
+msgid "Player %d"
+msgstr "Hráč %d"
+
+#: dance.py:288
+msgid "Default Settings"
+msgstr "Predvolené nastavenia"
+
+#: dance.py:319
+msgid "There was an error loading "
+msgstr "Chyba pri nahrávaní "
+
+#: dance.py:338
+msgid "Playing"
+msgstr "Prehrávam"
+
+#: dance.py:436
+msgid "The audio file for this song "
+msgstr "Audiosúbor tejto skladby "
+
+#: dance.py:437
+msgid " could not be found."
+msgstr " sa nepodarilo nájsť."
+
+#: dance.py:523
+msgid "Saving a screenshot to"
+msgstr "Ukladám snímku do"
+
+#: dance.py:537
+#, python-format
+msgid "Average FPS for this song was %d."
+msgstr "Priemerný počet snímkov/s pre túto skladbu bol %d."
+
+#: endless.py:20
+msgid "Left: Make the songs that will be played easier"
+msgstr "Doľava: Uľahčí hranie skladieb"
+
+#: endless.py:21
+msgid "Right: Make the songs that will be played harder"
+msgstr "Doprava: Sťaží hranie skladieb"
+
+#: endless.py:22
+msgid "Up: Select difficulty by name"
+msgstr "Hore: Výber náročnosti podľa názvu"
+
+#: endless.py:23
+msgid "Down: Select difficulty by rating"
+msgstr "Dole: Výber náročnosti podľa hodnotenia"
+
+#: endless.py:24
+msgid "Enter / Up Right: Start playing songs until you fail"
+msgstr "Enter / Vpravo hore: Hrajte, kým sa vám darí"
+
+#: endless.py:25
+msgid "Escape / Up Left: Go back to the game selection screen"
+msgstr "Esc / Vľavo hore: Prejsť späť na obrazovku s výberom hry"
+
+#: endless.py:26
+msgid "Start: Go to the options screen / F11: Toggle fullscreen"
+msgstr "Start: Prejsť na obrazovku s nastaveniami / F11: Zapnúť/vypnúť celú obrazovku"
+
+#: endless.py:47
+msgid "Select by Difficulty"
+msgstr "Výber podľa náročnosti"
+
+#: endless.py:51
+msgid "Select by Rating"
+msgstr "Výber podľa hodnotenia"
+
+#: endless.py:52
+#, python-format
+msgid "Between %d and %d"
+msgstr "Medzi %d a %d"
+
+#: endless.py:114
+msgid "The difficulty settings you chose result "
+msgstr "Kvôli náročnosti, ktorú ste vybrali "
+
+#: endless.py:115
+msgid "in no songs being available to play."
+msgstr "nie sú dostupné žiadne skladby na prehranie."
+
+#: endless.py:149
+msgid "You need more songs to play Endless Mode. "
+msgstr "Potrebujete viac skladieb na Nekonečný režim. "
+
+#: endless.py:150
+msgid "Otherwise, it's just really boring."
+msgstr "Inak je to skutočná nuda."
+
+#: fileparsers.py:793
+msgid "No Mix"
+msgstr "Žiaden mix"
+
+#: fileparsers.py:794
+msgid "Untitled"
+msgstr "Bez mena"
+
+#: fileparsers.py:796 fileparsers.py:797
+msgid "Unknown"
+msgstr "Neznámy"
+
+#: fileparsers.py:817
+msgid " is missing: "
+msgstr " chýba: "
+
+#: fileparsers.py:823
+#, python-format
+msgid "W: Non-Unicode key in %s: %s"
+msgstr "V: Hodnota %s nie je v Unicode: %s"
+
+#: gameselect.py:15
+msgid "Up / Down: Change game, mode, or interface"
+msgstr "Hore / Dole: Zmena hry, režimu alebo rozhrania"
+
+#: gameselect.py:16
+msgid "Enter / Up Right: Advance your choice"
+msgstr "Enter / Vpravo hore: Potvrdenie výberu"
+
+#: gameselect.py:17
+msgid "Escape / Up Left: Back up or exit"
+msgstr "Esc / Vľavo hore: Späť alebo ukončiť"
+
+#: gameselect.py:18
+msgid "F11: Toggles fullscreen"
+msgstr "F11: Zobrazenie do okna/na celú obrazovku"
+
+#: gameselect.py:19
+#, python-format
+msgid "Enjoy pydance %s!"
+msgstr "Užite si pydance %s!"
+
+#: gameselect.py:23 gameselect.py:62 gameselect.py:89 gameselect.py:90
+#: gameselect.py:91 gameselect.py:92 gameselect.py:141 gameselect.py:190
+#: gameselect.py:191 gameselect.py:199
+msgid "4 panel"
+msgstr "4 panely"
+
+#: gameselect.py:23 gameselect.py:63 gameselect.py:99 gameselect.py:100
+#: gameselect.py:101 gameselect.py:102 gameselect.py:144
+msgid "5 panel"
+msgstr "5 panelov"
+
+#: gameselect.py:23 gameselect.py:64 gameselect.py:104 gameselect.py:105
+#: gameselect.py:106 gameselect.py:107 gameselect.py:145
+msgid "6 panel"
+msgstr "6 panelov"
+
+#: gameselect.py:23 gameselect.py:65 gameselect.py:109 gameselect.py:110
+#: gameselect.py:111 gameselect.py:112 gameselect.py:146
+msgid "8 panel"
+msgstr "8 panelov"
+
+#: gameselect.py:23 gameselect.py:66 gameselect.py:114 gameselect.py:115
+#: gameselect.py:116 gameselect.py:117 gameselect.py:147
+msgid "9 panel"
+msgstr "9 panelov"
+
+#: gameselect.py:24 gameselect.py:67 gameselect.py:119 gameselect.py:120
+#: gameselect.py:121 gameselect.py:122 gameselect.py:148 menudriver.py:224
+msgid "Parapara"
+msgstr "Parapara"
+
+#: gameselect.py:24 gameselect.py:70 gameselect.py:124 gameselect.py:125
+#: gameselect.py:126 gameselect.py:127 gameselect.py:149 menudriver.py:226
+msgid "DMX"
+msgstr "DMX"
+
+#: gameselect.py:24 gameselect.py:69 gameselect.py:129 gameselect.py:130
+#: gameselect.py:131 gameselect.py:132 gameselect.py:152 menudriver.py:228
+msgid "EZ2"
+msgstr "EZ2"
+
+#: gameselect.py:24 gameselect.py:68 gameselect.py:134 gameselect.py:135
+#: gameselect.py:136 gameselect.py:137 gameselect.py:153 menudriver.py:230
+msgid "EZ2 Real"
+msgstr "EZ2 Real"
+
+#: gameselect.py:24 gameselect.py:61 gameselect.py:94 gameselect.py:95
+#: gameselect.py:96 gameselect.py:97 gameselect.py:143
+msgid "3 panel"
+msgstr "3 panely"
+
+#: gameselect.py:25 gameselect.py:71 gameselect.py:89 gameselect.py:94
+#: gameselect.py:99 gameselect.py:104 gameselect.py:109 gameselect.py:114
+#: gameselect.py:119 gameselect.py:124 gameselect.py:129 gameselect.py:134
+#: gameselect.py:155
+msgid "Single"
+msgstr "Singel"
+
+#: gameselect.py:25 gameselect.py:72 gameselect.py:90 gameselect.py:95
+#: gameselect.py:100 gameselect.py:105 gameselect.py:110 gameselect.py:115
+#: gameselect.py:120 gameselect.py:125 gameselect.py:130 gameselect.py:135
+#: gameselect.py:156
+msgid "Versus"
+msgstr "Súboj"
+
+#: gameselect.py:25 gameselect.py:73 gameselect.py:92 gameselect.py:97
+#: gameselect.py:102 gameselect.py:107 gameselect.py:112 gameselect.py:117
+#: gameselect.py:122 gameselect.py:127 gameselect.py:132 gameselect.py:137
+#: gameselect.py:158
+msgid "Double"
+msgstr "Dabl"
+
+#: gameselect.py:25 gameselect.py:74 gameselect.py:91 gameselect.py:96
+#: gameselect.py:101 gameselect.py:106 gameselect.py:111 gameselect.py:116
+#: gameselect.py:121 gameselect.py:126 gameselect.py:131 gameselect.py:136
+#: gameselect.py:157
+msgid "Couple"
+msgstr "Dvojica"
+
+#: gameselect.py:26 gameselect.py:76 gameselect.py:83 gameselect.py:162
+msgid "Nonstop"
+msgstr "Nonstop"
+
+#: gameselect.py:26 gameselect.py:77 gameselect.py:82 gameselect.py:161
+#: grades.py:55
+msgid "Endless"
+msgstr "Nekonečné"
+
+#: gameselect.py:141
+msgid "The standard up, down, left and right arrows "
+msgstr "Štandardné šípky hore, dole, doľava a doprava "
+
+#: gameselect.py:142
+msgid "(like Dance Dance Revolution)"
+msgstr "(Dance Dance Revolution)"
+
+#: gameselect.py:143
+msgid "Practice using up left and up right with easier steps."
+msgstr "Trénujte s jednoduchšími krokmi a panelmi vľavo a vpravo hore."
+
+#: gameselect.py:144
+msgid "Diagonal arrows and the center (like Pump It Up)"
+msgstr "Diagonálne šípky a stred (Pump It Up)"
+
+#: gameselect.py:145
+msgid "Four panel plus the upper diagonal arrows (like DDR Solo)"
+msgstr "Štyri panely a horný rad diagonálnych šípok (DDR Solo)"
+
+#: gameselect.py:146
+msgid "Everything but the center (like Technomotion)"
+msgstr "Všetko okrem stredu (Technomotion)"
+
+#: gameselect.py:147
+msgid "Everything! (like Pop'n'Stage)"
+msgstr "Všetko! (Pop'n'Stage)"
+
+#: gameselect.py:148
+msgid "Wave your arms (or feet) around"
+msgstr "Mávajte vašimi rukami (alebo nohami)"
+
+#: gameselect.py:149
+msgid "Crazy kung-fu action (like Dance ManiaX / Freaks). "
+msgstr "Šialené kung-fu pohyby (Dance ManiaX/Freaks). "
+
+#: gameselect.py:150
+msgid "Use left, up left, up right, and right."
+msgstr "Použite panel vľavo, vľavo hore, vpravo hore a vpravo."
+
+#: gameselect.py:152
+msgid "Three panels, two sensors, using left and right."
+msgstr "Tri panely, dva senzory - vľavo a vpravo."
+
+#: gameselect.py:153
+msgid "Three panels and four sensors."
+msgstr "Tri panely a štyri senzory."
+
+#: gameselect.py:155
+msgid "Play by yourself."
+msgstr "Zahrajte si len vy."
+
+#: gameselect.py:156
+msgid "Challenge an opponent to the same steps."
+msgstr "Vyzvite súpera a tancujte tú istú zostavu."
+
+#: gameselect.py:157
+msgid "Two people dance different steps to the same song."
+msgstr "Dvaja ľudia tancujú odlišnú zostavu na tú istú skladbu."
+
+#: gameselect.py:158
+msgid "Try playing on both sides at once."
+msgstr "Skúste hrať na oboch stranách naraz."
+
+#: gameselect.py:160
+msgid "Play one song at a time."
+msgstr "Tancovať iba na jednu skladbu."
+
+#: gameselect.py:161
+msgid "Keep dancing until you fail."
+msgstr "Tancujte, až kým vám nedôjde život."
+
+#: gameselect.py:162
+msgid "Play several songs in a row."
+msgstr "Zahrajte si niekoľko skladieb za sebou."
+
+#: gameselect.py:172
+msgid "Select a Game"
+msgstr "Výber hry"
+
+#: gameselect.py:172
+msgid "Select a Mode"
+msgstr "Výber režimu"
+
+#: gameselect.py:172
+msgid "Select Type"
+msgstr "Výberu typu"
+
+#: gradescreen.py:43
+msgid "Press Escape/Confirm/Start"
+msgstr "Stlačte Esc/Potvrdenie/Start"
+
+#: gradescreen.py:210
+#, python-format
+msgid "GRADE: %s (%s) - total steps: %d; best combo: %d"
+msgstr "ZNÁMKA: %s (%s) - celkom krokov: %d; naj kombo: %d"
+
+#: gradescreen.py:211
+#, python-format
+msgid "V: %d P: %d G: %d O: %d B: %d M: %d - %d/%d holds"
+msgstr "V: %d P: %d G: %d O: %d B: %d M: %d - %d/%d držané"
+
+#: gradescreen.py:213
+#, python-format
+msgid "Average off: %0.3f, standard deviation %0.2f"
+msgstr "Priemerne mimo: %0.3f, štand. odchýlka %0.2f"
+
+#: gradescreen.py:233 gradescreen.py:255
+msgid "MARVEL.:"
+msgstr "ÚŽASNÉ:"
+
+#: gradescreen.py:234 gradescreen.py:256
+msgid "PERFECT:"
+msgstr "PERFEKTNÉ:"
+
+#: gradescreen.py:235 gradescreen.py:257
+msgid "GREAT:"
+msgstr "SKVELÉ:"
+
+#: gradescreen.py:236 gradescreen.py:258
+msgid "OKAY:"
+msgstr "DOBRÉ:"
+
+#: gradescreen.py:237 gradescreen.py:259
+msgid "BOO:"
+msgstr "SLABÉ:"
+
+#: gradescreen.py:238 gradescreen.py:260
+msgid "MISS:"
+msgstr "PREMEŠKANÉ:"
+
+#: gradescreen.py:239 gradescreen.py:261
+msgid "Score:"
+msgstr "Skóre:"
+
+#: gradescreen.py:240 gradescreen.py:262
+msgid "Holds:"
+msgstr "Držané:"
+
+#: gradescreen.py:242 gradescreen.py:264
+msgid "Max Combo:"
+msgstr "Max kombo:"
+
+#: gradescreen.py:243 gradescreen.py:265
+msgid "Early:"
+msgstr "Priskoro:"
+
+#: gradescreen.py:244 gradescreen.py:266
+msgid "Late:"
+msgstr "Neskoro:"
+
+#: gradescreen.py:245 gradescreen.py:267
+msgid "TOTAL:"
+msgstr "CELKOM:"
+
+#: gradescreen.py:247
+msgid "rating-"
+msgstr "hodnotenie-"
+
+#: grades.py:54
+msgid "Dance Points"
+msgstr "Tanečné body"
+
+#: grades.py:56
+msgid "Like dance points, but failing doesn't result in an F."
+msgstr "Ako tanečné body, ale pri faili nedostanete známku F."
+
+#: judge.py:143
+msgid "Time"
+msgstr "Čas"
+
+#: judge.py:144
+msgid "Judging is based on how many seconds you are from the correct time."
+msgstr "Hodnotenie je založené na tom, koľko sekúnd vás delí od správneho času."
+
+#: judge.py:145
+msgid "Beat"
+msgstr "Doba"
+
+#: judge.py:146
+msgid "Judging is based on how many beats you are from the correct time."
+msgstr "Hodnotenie je založené na tom, ako ďaleko ste od správnej doby."
+
+#: lifebars.py:24
+msgid "FAILED"
+msgstr "FAIL"
+
+#: lifebars.py:220
+msgid "Battery"
+msgstr "Batéria"
+
+#: lifebars.py:220
+msgid "A few points of life, increasing each song."
+msgstr "Zopár bodov života, zvyšuje sa po každej skladbe."
+
+#: lifebars.py:221
+msgid "Power Drop"
+msgstr "Klesajúci výkon"
+
+#: lifebars.py:221
+msgid "Like normal, but never goes back up."
+msgstr "Ako normálny, ale nikdy sa nevráti naspäť."
+
+#: lifebars.py:222
+msgid "Mediocre"
+msgstr "Priemerný"
+
+#: lifebars.py:222
+msgid "Fail if you do too poorly or too well."
+msgstr "Končíte, ak ste príliš slabý alebo príliš dobrý."
+
+#: lifebars.py:223
+msgid "Tug of War"
+msgstr "Preťahovanie lanom"
+
+#: lifebars.py:223
+msgid "Fight with the other player for life."
+msgstr "Preťahujte sa s inými hráčmi o život."
+
+#: lifebars.py:224
+msgid "Great Attack"
+msgstr "Iba skvelé"
+
+#: lifebars.py:224
+msgid "Only greats make the bar go up."
+msgstr "Život zvyšujú iba skvelé hodnotenia."
+
+#: menudriver.py:64 menudriver.py:82
+msgid "on"
+msgstr "zap"
+
+#: menudriver.py:65 menudriver.py:81
+msgid "off"
+msgstr "vyp"
+
+#: menudriver.py:186 menudriver.py:188
+#, python-format
+msgid "pydance %s"
+msgstr "pydance %s"
+
+#: menudriver.py:190
+msgid "By Joe Wreschnig, Brendan Becker, & Pavel Krivitsky"
+msgstr "Autori: Joe Wreschnig, Brendan Becker, & Pavel Krivitsky"
+
+#: menudriver.py:191
+msgid "(Your CREDITS file is missing.)"
+msgstr "(Váš súbor CREDITS chýba.)"
+
+#: menudriver.py:194
+msgid "Play Game"
+msgstr "Spustiť hru"
+
+#: menudriver.py:196
+msgid "Map Keys"
+msgstr "Mapa kláves"
+
+#: menudriver.py:198
+msgid "Game Options"
+msgstr "Nastavenia hry"
+
+#: menudriver.py:199
+msgid "Autofail"
+msgstr "Autofail"
+
+#: menudriver.py:199
+msgid "autofail"
+msgstr "autofail"
+
+#: menudriver.py:200
+msgid "Assist Mode"
+msgstr "Režim asistencie"
+
+#: menudriver.py:200
+msgid "assist"
+msgstr "asistovať"
+
+#: menudriver.py:201 options.py:20 options.py:95 options.py:160
+msgid "Off"
+msgstr "Vyp"
+
+#: menudriver.py:202
+msgid "Click"
+msgstr "Kliknutie"
+
+#: menudriver.py:203
+msgid "Full"
+msgstr "Plné"
+
+#: menudriver.py:204
+msgid "Announcer"
+msgstr "Uvádzač"
+
+#: menudriver.py:205
+msgid "Themes ..."
+msgstr "Motívy ..."
+
+#: menudriver.py:206
+msgid "4 Panel"
+msgstr "4 panely"
+
+#: menudriver.py:208
+msgid "3 Panel"
+msgstr "3 panely"
+
+#: menudriver.py:210
+msgid "5 Panel"
+msgstr "5 panelov"
+
+#: menudriver.py:212
+msgid "Large 6 Panel"
+msgstr "6 veľkých panelov"
+
+#: menudriver.py:214
+msgid "Small 6 Panel"
+msgstr "6 malých panelov"
+
+#: menudriver.py:216
+msgid "Large 8 Panel"
+msgstr "8 veľkých panelov"
+
+#: menudriver.py:218
+msgid "Small 8 Panel"
+msgstr "8 malých panelov"
+
+#: menudriver.py:220
+msgid "Large 9 Panel"
+msgstr "9 veľkých panelov"
+
+#: menudriver.py:222
+msgid "Small 9 Panel"
+msgstr "9 malých panelov"
+
+#: menudriver.py:232 menudriver.py:234 menudriver.py:252 menudriver.py:264
+msgid "Back"
+msgstr "Späť"
+
+#: menudriver.py:236
+msgid "Graphic Options"
+msgstr "Grafika"
+
+#: menudriver.py:237
+msgid "Animation"
+msgstr "Animácia"
+
+#: menudriver.py:238
+msgid "Arrow Effects"
+msgstr "Efekty šípiek"
+
+#: menudriver.py:239
+msgid "none"
+msgstr "žiadne"
+
+#: menudriver.py:239
+msgid "rotate"
+msgstr "otáčať"
+
+#: menudriver.py:239
+msgid "scale"
+msgstr "meniť veľkosť"
+
+#: menudriver.py:239
+msgid "rotate & scale"
+msgstr "otáčať a meniť veľkosť"
+
+#: menudriver.py:240
+msgid "Backgrounds"
+msgstr "Pozadia"
+
+#: menudriver.py:241
+msgid "Brightness"
+msgstr "Jas"
+
+#: menudriver.py:242
+msgid "very dark"
+msgstr "veľmi tmavé"
+
+#: menudriver.py:243
+msgid "dark"
+msgstr "tmavé"
+
+#: menudriver.py:244
+msgid "normal"
+msgstr "normálne"
+
+#: menudriver.py:245
+msgid "bright"
+msgstr "svetlé"
+
+#: menudriver.py:246
+msgid "very bright"
+msgstr "veľmi svetlé"
+
+#: menudriver.py:247
+msgid "Lyrics"
+msgstr "Text piesne"
+
+#: menudriver.py:248
+msgid "Lyrics Color"
+msgstr "Farba textu piesne"
+
+#: menudriver.py:249
+msgid "pink/purple"
+msgstr "ružová/purpurová"
+
+#: menudriver.py:249
+msgid "purple/cyan"
+msgstr "purpurová/azúrová"
+
+#: menudriver.py:250
+msgid "cyan/aqua"
+msgstr "azúrová/zeleno-modrá"
+
+#: menudriver.py:250
+msgid "aqua/yellow"
+msgstr "zeleno-modrá/žltá"
+
+#: menudriver.py:251
+msgid "yellow/pink"
+msgstr "žltá/ružová"
+
+#: menudriver.py:254
+msgid "Interface Options"
+msgstr "Voľby rozhrania"
+
+#: menudriver.py:255
+msgid "Save Input"
+msgstr "Uložiť vstup"
+
+#: menudriver.py:256
+msgid "Song Previews"
+msgstr "Náhľady skladieb"
+
+#: menudriver.py:258
+msgid "Folders"
+msgstr "Priečinky"
+
+#: menudriver.py:259
+msgid "Timer Display"
+msgstr "Zobrazenie časovača"
+
+#: menudriver.py:260
+msgid "Song Info Screen"
+msgstr "Informácie o skladbe"
+
+#: menudriver.py:262
+msgid "Never"
+msgstr "Nikdy"
+
+#: menudriver.py:262
+msgid "Multi-song Only"
+msgstr "Iba viac skladieb"
+
+#: menudriver.py:262
+msgid "Always"
+msgstr "Vždy"
+
+#: menudriver.py:263
+msgid "Font (after restart)"
+msgstr "Písmo (po reštarte)"
+
+#: menudriver.py:268
+msgid "Main Menu"
+msgstr "Hlavná ponuka"
+
+#: options.py:20 options.py:95
+msgid "On"
+msgstr "Zap"
+
+#: options.py:34
+msgid "Speed"
+msgstr "Rýchlosť"
+
+#: options.py:35
+msgid "Adjust the speed at which the arrows scroll across the screen."
+msgstr "Upraviť rýchlosť, akou sa šípky pohybujú na obrazovke"
+
+#: options.py:39
+msgid "Arrows scroll at 200bpm."
+msgstr "Šípky sa posúvajú rýchlosťou 200 úderov/min"
+
+#: options.py:39
+msgid "Arrows scroll at 300bpm."
+msgstr "Šípky sa posúvajú rýchlosťou 300 úderov/min"
+
+#: options.py:39
+msgid "Arrows scroll at 400bpm."
+msgstr "Šípky sa posúvajú rýchlosťou 400 úderov/min"
+
+#: options.py:39
+msgid "Arrows scroll at 500bpm."
+msgstr "Šípky sa posúvajú rýchlosťou 500 úderov/min"
+
+#: options.py:39
+msgid "Arrows scroll at 600bpm."
+msgstr "Šípky sa posúvajú rýchlosťou 600 úderov/min"
+
+#: options.py:39
+msgid "Arrows scroll at 700bpm."
+msgstr "Šípky sa posúvajú rýchlosťou y00 úderov/min"
+
+#: options.py:39
+msgid "Arrows scroll at 800bpm."
+msgstr "Šípky sa posúvajú rýchlosťou 800 úderov/min"
+
+#: options.py:41
+msgid "Transform"
+msgstr "Transformovať"
+
+#: options.py:42
+msgid "Change the step patterns for the song."
+msgstr "Zmeniť variácie krokov v skladbe."
+
+#: options.py:44
+msgid "Mirror"
+msgstr "Zrkadliť"
+
+#: options.py:44
+msgid "Left"
+msgstr "Ľavá"
+
+#: options.py:44
+msgid "Right"
+msgstr "Pravá"
+
+#: options.py:44
+msgid "Shuffle"
+msgstr "Premiešať"
+
+#: options.py:44
+msgid "Random"
+msgstr "Náhodne"
+
+#: options.py:45
+msgid "Rotate the steps 180 degrees."
+msgstr "Otočiť kroky o 180 stupňov"
+
+#: options.py:46
+msgid "Rotate the steps 90 degrees to the left."
+msgstr "Otočiť kroky o 90 stupňov doľava"
+
+#: options.py:47
+msgid "Rotate the steps 90 degrees to the right."
+msgstr "Otočiť kroky o 90 stupňov doprava"
+
+#: options.py:48
+msgid "Swap all arrows from one direction to another."
+msgstr "Prehodiť všetky šípky z jedného smeru do druhého"
+
+#: options.py:49
+msgid "Use totally random directions."
+msgstr "Použiť úplne náhodné smery."
+
+#: options.py:51
+msgid "Add/Remove Steps"
+msgstr "Pridať/Odstrániť kroky"
+
+#: options.py:52
+msgid "Add or remove arrows from step patterns."
+msgstr "Pridá alebo odstráni šípky z krokov."
+
+#: options.py:54
+msgid "Tiny"
+msgstr "Maličký"
+
+#: options.py:54
+msgid "Little"
+msgstr "Malý"
+
+#: options.py:54
+msgid "Big"
+msgstr "Veľký"
+
+#: options.py:54
+msgid "Quick"
+msgstr "Rýchly"
+
+#: options.py:54
+msgid "Skippy"
+msgstr "Skákavý"
+
+#: options.py:55
+msgid "Only dance to on-beat notes."
+msgstr "Tancovať iba na štvrťové noty."
+
+#: options.py:56
+msgid "Only dance to on-beat and half-beat notes."
+msgstr "Tancovať iba na štvrťové a osminové noty."
+
+#: options.py:57
+msgid "Add half-beat steps between on-beat ones."
+msgstr "Pridať osminové medzi štvrťové noty."
+
+#: options.py:58
+msgid "Add steps between half-beat ones."
+msgstr "Pridať kroky medzi štvrťové noty."
+
+#: options.py:59
+msgid "Add gallops between on-beat steps."
+msgstr "Pridať galop medzi štvrťové noty"
+
+#: options.py:61
+msgid "Fade"
+msgstr "Animovať"
+
+#: options.py:62
+msgid "Fade arrows in or out while they scroll."
+msgstr "Animovať šípky (postupné slabnutie) počas pohybu."
+
+#: options.py:64
+msgid "Sudden"
+msgstr "Náhle"
+
+#: options.py:64
+msgid "Hidden"
+msgstr "Skryté"
+
+#: options.py:64
+msgid "Peek"
+msgstr "Nakuknúť"
+
+#: options.py:64
+msgid "Cycle"
+msgstr "Slučka"
+
+#: options.py:64
+msgid "Stealth"
+msgstr "Nenápadné"
+
+#: options.py:65
+msgid "Only display arrows near the top."
+msgstr "Zobrazovať šípky iba blízko horného okraja."
+
+#: options.py:66
+msgid "Only display arrows near the bottom."
+msgstr "Zobrazovať šípky iba blízko spodného okraja."
+
+#: options.py:67
+msgid "Only display arrows near the middle."
+msgstr "Zobrazovať šípky iba blízko stredu."
+
+#: options.py:68
+msgid "Blink arrows in and out."
+msgstr "Blikajúce šípky."
+
+#: options.py:69
+msgid "No arrows are displayed."
+msgstr "Nie sú zobrazené žiadne šípky."
+
+#: options.py:71
+msgid "Acceleration"
+msgstr "Zrýchlenie"
+
+#: options.py:72
+msgid "Accelerate or decelerate arrows."
+msgstr "Zrýchliť alebo spomaliť šípky."
+
+#: options.py:74
+msgid "Brake"
+msgstr "Brzda"
+
+#: options.py:74
+msgid "Boost"
+msgstr "Prudko"
+
+#: options.py:75
+msgid "Decelerate near the top"
+msgstr "Spomaliť pri hornom okraji"
+
+#: options.py:75
+msgid "Accelerate near the top."
+msgstr "Zrýchliť pri hornom okraji."
+
+#: options.py:77
+msgid "Size"
+msgstr "Veľkosť"
+
+#: options.py:78
+msgid "Change arrow sizes."
+msgstr "Zmeniť veľkosť šípok."
+
+#: options.py:80
+msgid "Shrink"
+msgstr "Zmenšiť"
+
+#: options.py:80
+msgid "Grow"
+msgstr "Zväčšiť"
+
+#: options.py:81
+msgid "Smaller arrows near the top."
+msgstr "Menšie šípky pri hornom okraji."
+
+#: options.py:82
+msgid "Smaller arrows near the bottom."
+msgstr "Menšie šípky pri spodnom okraji."
+
+#: options.py:84
+msgid "Direction"
+msgstr "Smer"
+
+#: options.py:85
+msgid "Change the direction arrows scroll."
+msgstr "Zmeniť smer, v ktorom sa šípky pohybujú."
+
+#: options.py:87
+msgid "Reverse"
+msgstr "Obrátiť"
+
+#: options.py:87
+msgid "Center"
+msgstr "Do stredu"
+
+#: options.py:88
+msgid "Arrows go from bottom to top."
+msgstr "Šípky sa pohybujú zo spodu na vrch"
+
+#: options.py:89
+msgid "Arrows go from top to bottom."
+msgstr "Šípky sa pohybujú z vrchu na spodok."
+
+#: options.py:90
+msgid "Arrows go from the top and bottom to the center."
+msgstr "Šípky sa pohybujú z vrchu a spodku do stredu."
+
+#: options.py:92
+msgid "Jumps"
+msgstr "Skoky"
+
+#: options.py:93
+msgid "Turn jumps off, or add more."
+msgstr "Pridajte alebo vypnite skoky."
+
+#: options.py:95
+msgid "Wide"
+msgstr "Široké"
+
+#: options.py:96
+msgid "Remove jumps from the song."
+msgstr "Odstrániť skoky zo skladby."
+
+#: options.py:97
+msgid "Add jumps on every on-beat step."
+msgstr "Pridať skoky na každú štvrťovú notu."
+
+#: options.py:99
+msgid "Spin"
+msgstr "Roztočiť"
+
+#: options.py:100
+msgid "Rotate arrows as they go up the screen."
+msgstr "Šípky sa počas posúvania na obrazovke otáčajú."
+
+#: options.py:102
+msgid "Colors"
+msgstr "Farby"
+
+#: options.py:103
+msgid "Use colors of arrows to indicate the beat."
+msgstr "Použiť farby šípok na zobrazenie doby."
+
+#: options.py:105
+msgid "Flat"
+msgstr "Nezvýrazňovať"
+
+#: options.py:106
+msgid "All arrows are the same."
+msgstr "Všetky šípky sú rovnaké."
+
+#: options.py:107
+msgid "Different arrows have different colors."
+msgstr "Rôzne šípky majú rôzne farby."
+
+#: options.py:109
+msgid "Dark"
+msgstr "Tma"
+
+#: options.py:110
+msgid "Don't display the top arrows."
+msgstr "Nezobrazovať horný rad šípok."
+
+#: options.py:112
+msgid "Holds"
+msgstr "Držania"
+
+#: options.py:113
+msgid "Allow hold ('freeze') arrows in songs."
+msgstr "Povoliť držané šípky ('freeze') v skladbe."
+
+#: options.py:115
+msgid "Scoring"
+msgstr "Skórovanie"
+
+#: options.py:116
+msgid "The scoring algorithm."
+msgstr "Algoritmus skórovania"
+
+#: options.py:118
+msgid "Grades"
+msgstr "Známkovanie"
+
+#: options.py:119
+msgid "The grading algorithm."
+msgstr "Algoritmus známkovania."
+
+#: options.py:121
+msgid "Combos"
+msgstr "Kombá"
+
+#: options.py:122
+msgid "How your combo increases."
+msgstr "Čo prispieva ku kombu"
+
+#: options.py:124
+msgid "Judging Method"
+msgstr "Metóda hodnotenia"
+
+#: options.py:125
+msgid "How your steps are judged."
+msgstr "Ako sú vaše kroky hodnotené."
+
+#: options.py:127
+msgid "Judging Windows"
+msgstr "Tolerancia pri hodnotení"
+
+#: options.py:128
+msgid "The margin of error for your steps."
+msgstr "Tolerancia chýb pri hodnotení vašich krokov."
+
+#: options.py:131
+msgid "Window is twice normal size."
+msgstr "Tolerancia je dvakrát väčšia ako obvykle."
+
+#: options.py:132
+msgid "Window is 9/5 normal size."
+msgstr "Tolerancia je 9/5 obvyklej hodnoty."
+
+#: options.py:133
+msgid "Window is 8/5 normal size."
+msgstr "Tolerancia je 8/5 obvyklej hodnoty."
+
+#: options.py:134
+msgid "Window is 7/5 normal size."
+msgstr "Tolerancia je 7/5 obvyklej hodnoty."
+
+#: options.py:135
+msgid "Window is 6/5 normal size."
+msgstr "Tolerancia je 6/5 obvyklej hodnoty."
+
+#: options.py:136
+msgid "Window is 4/5 normal size."
+msgstr "Tolerancia je 4/5 obvyklej hodnoty."
+
+#: options.py:137
+msgid "Window is 3/5 normal size."
+msgstr "Tolerancia je 3/5 obvyklej hodnoty."
+
+#: options.py:138
+msgid "Window is 2/5 normal size."
+msgstr "Tolerancia je 2/5 obvyklej hodnoty."
+
+#: options.py:139
+msgid "Window is 1/5 normal size."
+msgstr "Tolerancia je 1/5 obvyklej hodnoty."
+
+#: options.py:142
+msgid "Life"
+msgstr "Život"
+
+#: options.py:143
+msgid "Increase or decrease your amount of (non-battery) life."
+msgstr "Zvyšuje alebo znižuje úroveň života."
+
+#: options.py:144
+msgid "Undead"
+msgstr "Zombie"
+
+#: options.py:144
+msgid "Life is 1/4 the usual amount."
+msgstr "Život je 1/4 obvyklej hodnoty."
+
+#: options.py:145
+msgid "Very Low"
+msgstr "Veľmi nízka"
+
+#: options.py:145
+msgid "Life is 1/2 the usual amount."
+msgstr "Život je 1/2 obvyklej hodnoty."
+
+#: options.py:146
+msgid "Low"
+msgstr "Nízka"
+
+#: options.py:146
+msgid "Life is 3/4 the usual amount."
+msgstr "Život je 3/4 obvyklej hodnoty."
+
+#: options.py:148
+msgid "High"
+msgstr "Vysoká"
+
+#: options.py:148
+msgid "Life is 5/4 the usual amount."
+msgstr "Život je 5/4 obvyklej hodnoty."
+
+#: options.py:149
+msgid "Very High"
+msgstr "Veľmi vysoká"
+
+#: options.py:149
+msgid "Life is 3/2 the usual amount."
+msgstr "Život je 3/2 obvyklej hodnoty."
+
+#: options.py:150
+msgid "Lazarus"
+msgstr "Lazar"
+
+#: options.py:150
+msgid "Life is 7/4 the usual amount."
+msgstr "Život je 5/4 obvyklej hodnoty."
+
+#: options.py:152
+msgid "Lifebar"
+msgstr "Indikácia života"
+
+#: options.py:153
+msgid "The kind of lifebar used."
+msgstr "Typ zobrazenia života."
+
+#: options.py:155
+msgid "Oni Lives"
+msgstr "Oni životy"
+
+#: options.py:156
+msgid "The initial / maximum life in Battery mode."
+msgstr "Úvodný / maximálny život v režime Batéria."
+
+#: options.py:158
+msgid "Secret Arrows"
+msgstr "Tajné šípky"
+
+#: options.py:159
+msgid "Secret arrow display"
+msgstr "Zobrazenie tajných šípok"
+
+#: options.py:160
+msgid "Disable secret arrows."
+msgstr "Vypnúť tajné šípky."
+
+#: options.py:161
+msgid "Invisible"
+msgstr "Neviditeľné"
+
+#: options.py:161
+msgid "Enable but don't display them."
+msgstr "Povoliť ale nezobrazovať ich."
+
+#: options.py:162
+msgid "Faint"
+msgstr "Vyblednuté"
+
+#: options.py:162
+msgid "Show secret arrows faintly."
+msgstr "Zobrazovať tajné šípky ako vyblednuté."
+
+#: options.py:164
+msgid "Battle Mode"
+msgstr "Režim Bitky"
+
+#: options.py:165
+msgid "Arrows start in the center and float outwards."
+msgstr "Šípky začínajú v strede a posúvajú sa k okrajom."
+
+#: options.py:176
+msgid "Up / Down: Select option"
+msgstr "Hore / Dole: Výber možnosti"
+
+#: options.py:177
+msgid "Left / Right: Change value"
+msgstr "Vľavo / Vpravo: Zmena hodnoty"
+
+#: options.py:178
+msgid "Start: Return to song selector"
+msgstr "Start: Návrat na výber skladby"
+
+#: options.py:179
+msgid "F11: Toggle fullscreen"
+msgstr "F11: Vypnúť/zapnúť zobrazenie na celú obrazovku"
+
+#: pad.py:13
+msgid "quit"
+msgstr "ukončiť"
+
+#: pad.py:13
+msgid "up"
+msgstr "hore"
+
+#: pad.py:13
+msgid "up-left"
+msgstr "vľavo-hore"
+
+#: pad.py:13
+msgid "left"
+msgstr "vľavo"
+
+#: pad.py:13
+msgid "down-left"
+msgstr "vľavo-dole"
+
+#: pad.py:14
+msgid "down"
+msgstr "dole"
+
+#: pad.py:14
+msgid "down-right"
+msgstr "vpravo-dole"
+
+#: pad.py:14
+msgid "right"
+msgstr "vpravo"
+
+#: pad.py:14
+msgid "up-right"
+msgstr "vpravo-hore"
+
+#: pad.py:14
+msgid "center"
+msgstr "stred"
+
+#: pad.py:15
+msgid "start"
+msgstr "start"
+
+#: pad.py:15
+msgid "select"
+msgstr "select"
+
+#: pad.py:131 pad.py:187
+msgid "joystick(s) found."
+msgstr "joystick(y) nájdený(é)."
+
+#: pad.py:140
+#, python-format
+msgid "Joystick %d initialized: %d axes, %d buttons."
+msgstr "Joystick %d inicializovaný: %d osi, %d tlačidiel."
+
+#: pad.py:157
+msgid "W: Unable to load input configuration file."
+msgstr "V: Nepodarilo sa načítať súbor s konfiguráciou."
+
+#: pad.py:161
+msgid "Loaded input configuration."
+msgstr "Nahraná konfigurácia pre vstupy."
+
+#: pad.py:165
+msgid "EMSUSB2 found. Using preset EMSUSB2 config."
+msgstr "Nájdený EMSUSB2. Používam konfiguráciu s prednastavením pre EMSUSB2."
+
+#: pad.py:169
+#, python-format
+msgid "Initializing player 1 using js%d."
+msgstr "Inicializujem hráča 1, ktorý použije js%d."
+
+#: pad.py:175
+#, python-format
+msgid "Initializing player 2 using js%d."
+msgstr "Inicializujem hráča 2, ktorý použije js%d."
+
+#: pad.py:178
+msgid "No known joysticks found! If you want to use yours,"
+msgstr "Neboli rozpoznané žiadne joysticky! Ak chcete použiť váš,"
+
+#: pad.py:179
+msgid "you'll have to map its button manually once to use it."
+msgstr "budete musieť pred použitím namapovať tlačidlá manuálne."
+
+#: pad.py:310
+#, python-format
+msgid "Press a key for %s (escape to cancel)"
+msgstr "Stlačte kláves pre %s (esc pre zrušenie)"
+
+#: pad.py:313
+#, python-format
+msgid "Press a button for %s (escape to cancel)"
+msgstr "Stlačte tlačidlo pre %s (esc pre zrušenie)"
+
+#: pad.py:337
+msgid "Player 1"
+msgstr "Hráč 1"
+
+#: pad.py:337
+msgid "Player 2"
+msgstr "Hráč 2"
+
+#: pad.py:338
+msgid "Keyboard"
+msgstr "Klávesnica"
+
+#: pad.py:338
+msgid "Joystick"
+msgstr "Joystick"
+
+#: player.py:98
+msgid "OK"
+msgstr "OK"
+
+#: player.py:99
+msgid "NG"
+msgstr "NG"
+
+#: player.py:144 player.py:145
+msgid "MARVELOUS"
+msgstr "ÚŽASNÉ"
+
+#: player.py:147 player.py:148
+msgid "PERFECT"
+msgstr "PERFEKTNÉ"
+
+#: player.py:150 player.py:151
+msgid "GREAT"
+msgstr "SKVELÉ"
+
+#: player.py:153 player.py:154
+msgid "OKAY"
+msgstr "DOBRÉ"
+
+#: player.py:156 player.py:157
+msgid "BOO"
+msgstr "SLABÉ"
+
+#: player.py:159 player.py:160
+msgid "MISS"
+msgstr "ZMEŠKANÉ"
+
+#: pydance.py:15
+#, python-format
+msgid "Usage: %s [options]"
+msgstr "Použitie: %s [možnosti]"
+
+#: pydance.py:16
+msgid " -h, --help         display this help text and exit"
+msgstr " -h, --help         zobrazí tento text pomocníka a skončí"
+
+#: pydance.py:17
+msgid " -v, --version      display the version and exit"
+msgstr " -v, --version      zobrazí verziu a skončí"
+
+#: pydance.py:18
+msgid " -f, --filename     load and play a step file"
+msgstr " -f, --filename     načítať a spustiť súbor step"
+
+#: pydance.py:19
+msgid " -m, --mode         the mode to play the file in (default SINGLE)"
+msgstr " -m, --mode         režim, v ktorom sa má súbor spustiť (predvolený: SINGLE)"
+
+#: pydance.py:20
+msgid " -d, --difficulty   the difficult to play the file (default BASIC)"
+msgstr " -d, --difficulty   náročnosť, v ktorej sa má hra spustiť (predvolená: BASIC)"
+
+#: pydance.py:24
+#, python-format
+msgid "pydance %s by Joe Wreschnig, Brendan Becker, and others"
+msgstr "autori pydance %s: Joe Wreschnig, Brendan Becker a iní"
+
+#: pydance.py:62
+msgid "E: Can't get a 16 bit display! pydance doesn't work in 8 bit mode."
+msgstr "CH: Nie je možné použiť 16bitové zobrazenie! pydance nefunguje v režime 8 bitov."
+
+#: pydance.py:68
+msgid "Entering debug (play-and-quit) mode."
+msgstr "Spúšťam ladiaci (hraj-a-skonči) režim."
+
+#: pydance.py:88
+#, python-format
+msgid "Found %d %s. Loading..."
+msgstr "Nájdených %d %s. Nahrávam..."
+
+#: pydance.py:95 pydance.py:96 pydance.py:100
+msgid "E:"
+msgstr "CH:"
+
+#: pydance.py:99
+msgid "E: Unknown error loading"
+msgstr "CH: Neznáma chyba počas nahrávania"
+
+#: pydance.py:101
+msgid "E: Please contact the developers (pyddr-devel@icculus.org)."
+msgstr "CH: Prosím, kontaktujte vývojárov (pyddr-devel@icculus.org)."
+
+#: pydance.py:120
+msgid "Psyco optimizing compiler found. Using psyco.full()."
+msgstr "Nájdený optimalizujúci Psyco kompilátor. Používam psyco.full()."
+
+#: pydance.py:122
+msgid "W: Psyco optimizing compiler not found."
+msgstr "V: Optimalizujúci Psyco kompilátor nebol nájdený."
+
+#: pydance.py:131
+msgid "--help"
+msgstr "--help"
+
+#: pydance.py:132
+msgid "--version"
+msgstr "--version"
+
+#: pydance.py:133
+msgid "--filename"
+msgstr "--filename"
+
+#: pydance.py:134
+msgid "--mode"
+msgstr "--mode"
+
+#: pydance.py:135
+msgid "--difficulty"
+msgstr "--difficulty"
+
+#: pydance.py:142
+msgid "Searching for songs in"
+msgstr "Hľadám skladby v"
+
+#: pydance.py:145
+msgid "Searching for courses in"
+msgstr "Hľadám kurzy v"
+
+#: pydance.py:162
+msgid "songs"
+msgstr "skladbách"
+
+#: pydance.py:178
+msgid "courses"
+msgstr "kurzoch"
+
+#: pydance.py:191
+msgid ""
+"You don't have any songs or step files. Check out http://icculus.org/pyddr/"
+"get.php#songs and download some free ones. If you already have some, make "
+"sure they're in "
+msgstr ""
+"Nemáte žiadne skladby alebo súbory step. Navštívte http://icculus.org/pyddr/"
+"get.php#songs a stiahnite si zopár zdarma. Ak už nejaké máte, skontrolujte, "
+"či sú v "
+
+#: pydance.py:196
+msgid ""
+"You don't have any songs. Check http://icculus.org/pyddr/get.php#songs ."
+msgstr ""
+"Nemáte žiadne skladby. Navštívte http://icculus.org/pyddr/get.php#songs ."
+
+#: scores.py:189
+msgid "pydance"
+msgstr "pydance"
+
+#: scores.py:189
+msgid "DDR 1st/2nd Mix"
+msgstr "DDR 1./2. Mix"
+
+#: scores.py:190
+msgid "DDR 3rd Mix"
+msgstr "DDR 3. Mix"
+
+#: scores.py:190
+msgid "DDR 4th Mix"
+msgstr "DDR 4. Mix"
+
+#: scores.py:191
+msgid "DDR 5th Mix"
+msgstr "DDR 5. Mix"
+
+#: scores.py:191
+msgid "DDR 7th/8th"
+msgstr "DDR 7./8."
+
+#: scores.py:192
+msgid "DDR 8th Oni"
+msgstr "DDR 8. Oni"
+
+#: scores.py:192
+msgid "DDR 8th Nonstop"
+msgstr "DDR 8. Nonstop"
+
+#: scores.py:193
+msgid "EZ2 Dancer"
+msgstr "EZ2 Dancer"
+
+#: songselect.py:42
+msgid "subtitle"
+msgstr "titulky"
+
+#: songselect.py:42
+msgid "title"
+msgstr "názov"
+
+#: songselect.py:42
+msgid "artist"
+msgstr "spevák/čka"
+
+#: songselect.py:42
+msgid "bpm"
+msgstr "bpm"
+
+#: songselect.py:42
+msgid "mix"
+msgstr "mix"
+
+#: songselect.py:43
+msgid "rating"
+msgstr "hodnotenie"
+
+#: songselect.py:43
+msgid "difficulty"
+msgstr "náročnosť"
+
+#: songselect.py:43
+msgid "rank"
+msgstr "úroveň"
+
+#: songselect.py:54
+msgid "Enter / Up Right: Open a folder or start a song"
+msgstr "Enter / Vpravo hore: Otvoriť priečinok alebo prehrať skladbu"
+
+#: songselect.py:55
+msgid "Escape / Up Left: Closes  folder or exit"
+msgstr "Esc / Vľavo hore: Zatvoriť priečinok alebo ukončiť"
+
+#: songselect.py:56
+msgid "Tab / Select: Go to a random song"
+msgstr "Tab / Select: Prejsť na náhodnú skladbu"
+
+#: songselect.py:57
+msgid "Start: Go to the options screen"
+msgstr "Start: Prejsť na obrazovku s nastaveniami"
+
+#: songselect.py:78
+#, python-format
+msgid "%d songs"
+msgstr "%d skladieb"
+
+#: songselect.py:161
+msgid "You don't have any songs for the game mode ("
+msgstr "Nemáte žiadne skladby pre herný režim ("
+
+#: songselect.py:162
+msgid ") that you selected."
+msgstr "), ktorý ste vybrali."
+
+#: songselect.py:231
+msgid "None"
+msgstr "Žiadne"
+
+#: songselect.py:300
+msgid "You don't have any songs that are marked "
+msgstr "Nemáte žiadne skladby, ktoré by boli "
+
+#: songselect.py:301
+msgid "\"valid\" for random selection."
+msgstr "\"platné\" pre náhodný výber."
+
+#: songselect.py:308
+msgid "You don't have any songs here that "
+msgstr "Nemáte žiadne skladby, ktoré"
+
+#: songselect.py:309
+msgid "are marked \"valid\" for random selection."
+msgstr "sú boli \"platné\" pre náhodný výber."
+
+#: steps.py:312
+msgid "Not a supported file type:"
+msgstr "Nepodporovaný typ súboru:"
+
+#: util.py:15
+msgid "BEGINNER"
+msgstr "ZAČIATOČNÍK"
+
+#: util.py:15
+msgid "EASY"
+msgstr "ĽAHKÉ"
+
+#: util.py:15
+msgid "LIGHT"
+msgstr "NENÁROČNÉ"
+
+#: util.py:15
+msgid "BASIC"
+msgstr "ZÁKLADNÉ"
+
+#: util.py:15
+msgid "PARA"
+msgstr "PARA"
+
+#: util.py:16
+msgid "ANOTHER"
+msgstr "INÉ"
+
+#: util.py:16
+msgid "NORMAL"
+msgstr "NORMÁLNE"
+
+#: util.py:16
+msgid "MEDIUM"
+msgstr "STREDNÉ"
+
+#: util.py:16
+msgid "STANDARD"
+msgstr "ŠTANDARD"
+
+#: util.py:17
+msgid "TRICK"
+msgstr "TRIK"
+
+#: util.py:17
+msgid "DOUBLE"
+msgstr "DABL"
+
+#: util.py:17
+msgid "HARD"
+msgstr "ŤAŽKÉ"
+
+#: util.py:17
+msgid "MANIAC"
+msgstr "MANIAK"
+
+#: util.py:17
+msgid "HEAVY"
+msgstr "HEAVY"
+
+#: util.py:18
+msgid "HARDCORE"
+msgstr "HARDCORE"
+
+#: util.py:18
+msgid "CHALLENGE"
+msgstr "VÝZVA"
+
+#: util.py:18
+msgid "ONI"
+msgstr "ONI"
+
+#: util.py:18
+msgid "SMANIAC"
+msgstr "SMANIAC"
+
+#: util.py:19
+msgid "S-MANIAC"
+msgstr "S-MANIAC"
+
+#: util.py:19
+msgid "CRAZY"
+msgstr "BLÁZNIVÉ"
+
+#: util.py:19
+msgid "EXPERT"
+msgstr "EXPERT"
